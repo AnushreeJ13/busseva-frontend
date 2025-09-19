@@ -314,7 +314,7 @@ function SignForm() {
           setTimeout(() => {
             setStatus("idle");
             if (!isSignup) {
-              window.location.href = "https://bus-seva.vercel.app/admin";
+              window.location.href = "https://busseva.vercel.app/admin";
             } else {
               setIsSignup(false);
               setEmail("");
