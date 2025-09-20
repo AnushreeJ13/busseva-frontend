@@ -850,7 +850,7 @@ const BusSevaHomepage = () => {
                 <p style={styles.sectionSubtitle}>
                   The flow mirrors familiar patterns: search, select with
                   ratings, live track, and pay digitally for a smooth, trusted
-                  booking journey [1][6][8].
+                  booking journey.
                 </p>
               </div>
               <div style={styles.howItWorksGrid}>
@@ -880,7 +880,7 @@ const BusSevaHomepage = () => {
                         <p style={styles.stepDescription}>
                           Enter route, compare options with ratings, and book
                           with digital payments for a fast, reliable experience
-                          [1][8].
+                          .
                         </p>
                       </div>
                     </div>
@@ -898,7 +898,7 @@ const BusSevaHomepage = () => {
                         <p style={styles.stepDescription}>
                           Track the bus live and get timely updates for
                           stress-free boarding and accurate ETAs along the route
-                          [6][8][12].
+                          .
                         </p>
                       </div>
                     </div>
@@ -916,7 +916,7 @@ const BusSevaHomepage = () => {
                         <p style={styles.stepDescription}>
                           Use safety tools and share verified feedback to
                           improve transparency and service quality for everyone
-                          [8][1].
+                          .
                         </p>
                       </div>
                     </div>
@@ -947,7 +947,7 @@ const BusSevaHomepage = () => {
                         <h4 style={styles.stepTitle}>Identity Verification</h4>
                         <p style={styles.stepDescription}>
                           Secure onboarding and identity checks help build trust
-                          and accountability within the network [1][8].
+                          and accountability within the network .
                         </p>
                       </div>
                     </div>
@@ -964,7 +964,7 @@ const BusSevaHomepage = () => {
                         <h4 style={styles.stepTitle}>Route Management</h4>
                         <p style={styles.stepDescription}>
                           Follow assigned routes and keep occupancy info updated
-                          to reduce uncertainties during boarding [1][8].
+                          to reduce uncertainties during boarding .
                         </p>
                       </div>
                     </div>
@@ -982,7 +982,7 @@ const BusSevaHomepage = () => {
                         <p style={styles.stepDescription}>
                           Periodic location sharing powers passenger tracking
                           and improves operational visibility end-to-end
-                          [6][12].
+                          .
                         </p>
                       </div>
                     </div>
@@ -1002,8 +1002,7 @@ const BusSevaHomepage = () => {
                 <h2 style={styles.sectionTitle}>Powerful Features</h2>
                 <p style={styles.sectionSubtitle}>
                   Designed around proven patterns: ratings for quality, live
-                  tracking for certainty, and offers that encourage adoption
-                  [8][6][16].
+                  tracking for certainty, and offers that encourage adoption.
                 </p>
               </div>
               <div style={styles.featuresGrid}>
@@ -1012,7 +1011,7 @@ const BusSevaHomepage = () => {
                   <h3 style={styles.featureTitle}>Enhanced Security</h3>
                   <p style={styles.featureDescription}>
                     Identity checks and transparent activity help create a safer
-                    travel ecosystem passengers can trust [1][8].
+                    travel ecosystem passengers can trust.
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
@@ -1020,7 +1019,7 @@ const BusSevaHomepage = () => {
                   <h3 style={styles.featureTitle}>Real-time Tracking</h3>
                   <p style={styles.featureDescription}>
                     Live bus location and updates reduce wait anxiety and
-                    improve time-to-board accuracy [6][12][8].
+                    improve time-to-board accuracy.
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
@@ -1030,7 +1029,7 @@ const BusSevaHomepage = () => {
                   <h3 style={styles.featureTitle}>SOS & Safety</h3>
                   <p style={styles.featureDescription}>
                     Built-in escalation and reporting options enhance
-                    confidence, especially on crowded corridors [8][1].
+                    confidence, especially on crowded corridors.
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
@@ -1040,7 +1039,7 @@ const BusSevaHomepage = () => {
                   <h3 style={styles.featureTitle}>Digital Ticketing</h3>
                   <p style={styles.featureDescription}>
                     Fast, multi-method checkout and confirmations mirror the
-                    best-in-class mobile booking experience [1][8].
+                    best-in-class mobile booking experience.
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
@@ -1048,7 +1047,7 @@ const BusSevaHomepage = () => {
                   <h3 style={styles.featureTitle}>Verified Reviews</h3>
                   <p style={styles.featureDescription}>
                     Ratings and reviews help riders choose reliable operators
-                    and premium-quality services [8][1].
+                    and premium-quality services .
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
@@ -1056,7 +1055,7 @@ const BusSevaHomepage = () => {
                   <h3 style={styles.featureTitle}>Occupancy Tracking</h3>
                   <p style={styles.featureDescription}>
                     Capacity visibility reduces overcrowding and improves
-                    boarding decisions during peak hours [6][8].
+                    boarding decisions during peak hours .
                   </p>
                 </div>
               </div>
@@ -1074,7 +1073,7 @@ const BusSevaHomepage = () => {
                 <p style={styles.sectionSubtitle}>
                   Passenger app, driver app, and admin web unify booking,
                   tracking, verification, and analytics for reliability at scale
-                  [1][8].
+                  .
                 </p>
               </div>
               <div style={styles.platformsGrid}>
@@ -1217,7 +1216,7 @@ const BusSevaHomepage = () => {
               <p style={styles.ctaSubtitle}>
                 Bring trusted search, live tracking, and compelling offers
                 together to deliver a top-tier rider experience across India
-                [1][6][16].
+                .
               </p>
               <div style={styles.ctaButtons}>
                 <button style={styles.ctaButton} className="pressable">

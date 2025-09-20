@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-
+const API_BASE_URL = "https://busseva.onrender.com";
 const styles = `
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -33,7 +33,7 @@ body::before {
   width: 100%;
   max-width: 600px;
   min-width: 400px;
-  min-height: 420px;
+  min-height: 480px;
   display: flex;
   flex-direction: column;
   z-index: 1;
@@ -74,6 +74,7 @@ body::before {
 .form-group { margin-bottom: 16px; position: relative; opacity: 0; transform: translateX(-20px); animation: slideInLeft 0.6s ease forwards; }
 .form-group:nth-child(1) { animation-delay: 0.5s; }
 .form-group:nth-child(2) { animation-delay: 0.7s; }
+.form-group:nth-child(3) { animation-delay: 0.9s; }
 
 @keyframes slideInLeft { to { opacity: 1; transform: translateX(0); } }
 
@@ -105,11 +106,11 @@ body::before {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
   cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; margin-bottom: 16px;
-  text-transform: uppercase; letter-spacing: 1px; opacity: 0; transform: translateY(20px); animation: slideInUp 0.6s ease forwards 0.9s;
+  text-transform: uppercase; letter-spacing: 1px; opacity: 0; transform: translateY(20px); animation: slideInUp 0.6s ease forwards 1.1s;
 }
 .login-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(79,70,229,0.3); }
 
-.forgot-password { text-align: center; margin-top: auto; opacity: 100; animation: fadeIn 0.6s ease forwards 1.1s; }
+.forgot-password { text-align: center; margin-top: auto; opacity: 100; animation: fadeIn 0.6s ease forwards 1.3s; }
 .forgot-password a { color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 14px; }
 .forgot-password a:hover { text-decoration: underline; }
 
@@ -142,11 +143,25 @@ body::before {
   box-shadow: 0 6px 12px rgba(0,0,0,0.08);
 }
 
+.user-info {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
 @media (max-width: 480px) {
-  .login-container { border-radius: 20px; min-height: 400px; }
+  .login-container { border-radius: 20px; min-height: 500px; }
   .login-header { padding: 24px 16px 16px; }
   .login-form { padding: 0 16px 24px; }
   .logo { font-size: 28px; }
+  .user-info { top: 60px; left: 12px; }
 }
 `;
 
@@ -173,6 +188,8 @@ const translations = {
     welcome_back: "Welcome back!",
     signup_subtitle: "Sign up to start your journey",
     signin_subtitle: "Sign in to continue your journey",
+    name_label: "Full Name",
+    name_placeholder: "Enter your full name",
     email_label: "Email Address",
     email_placeholder: "Enter your email",
     password_label: "Password",
@@ -187,7 +204,8 @@ const translations = {
     switch_to_signup: "Switched to Sign Up mode.",
     account_created: "Account Created! 🎉",
     welcome_aboard: "Welcome Aboard! 🎉",
-    language_label: "Language"
+    language_label: "Language",
+    user_welcome: "Welcome, "
   },
   hi: {
     app_title: "BusSeva",
@@ -195,6 +213,8 @@ const translations = {
     welcome_back: "वापसी पर स्वागत है!",
     signup_subtitle: "अपनी यात्रा शुरू करने के लिए साइन अप करें",
     signin_subtitle: "अपनी यात्रा जारी रखने के लिए साइन इन करें",
+    name_label: "पूरा नाम",
+    name_placeholder: "अपना पूरा नाम दर्ज करें",
     email_label: "ईमेल पता",
     email_placeholder: "ईमेल दर्ज करें",
     password_label: "पासवर्ड",
@@ -209,7 +229,8 @@ const translations = {
     switch_to_signup: "साइन अप मोड पर स्विच किया.",
     account_created: "खाता बन गया! 🎉",
     welcome_aboard: "स्वागत है! 🎉",
-    language_label: "भाषा"
+    language_label: "भाषा",
+    user_welcome: "स्वागत है, "
   },
   mr: {
     app_title: "BusSeva",
@@ -217,6 +238,8 @@ const translations = {
     welcome_back: "परत स्वागत आहे!",
     signup_subtitle: "प्रवास सुरू करण्यासाठी साइन अप करा",
     signin_subtitle: "प्रवास सुरू ठेवण्यासाठी साइन इन करा",
+    name_label: "पूर्ण नाव",
+    name_placeholder: "आपले पूर्ण नाव प्रविष्ट करा",
     email_label: "ईमेल पत्ता",
     email_placeholder: "ईमेल प्रविष्ट करा",
     password_label: "पासवर्ड",
@@ -231,7 +254,8 @@ const translations = {
     switch_to_signup: "साइन अप मोडला बदलले.",
     account_created: "खाते तयार झाले! 🎉",
     welcome_aboard: "स्वागत आहे! 🎉",
-    language_label: "भाषा"
+    language_label: "भाषा",
+    user_welcome: "स्वागत आहे, "
   }
 };
 
@@ -249,10 +273,13 @@ const detectLang = () => {
 };
 
 function SignForm() {
+  
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordType, setPasswordType] = useState("password");
   const [isSignup, setIsSignup] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   // idle | loading | success
   const [status, setStatus] = useState("idle");
@@ -266,6 +293,31 @@ function SignForm() {
   useEffect(() => {
     try { localStorage.setItem("lang", lang); } catch {}
   }, [lang]);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkLoggedIn = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (token) {
+          const response = await fetch(`${API_BASE_URL}/api/user`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            setUserData(userData);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking login status:", error);
+      }
+    };
+    
+    checkLoggedIn();
+  }, []);
 
   const t = (key) => translations[lang]?.[key] ?? translations.en[key] ?? key;
 
@@ -286,18 +338,19 @@ function SignForm() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) return;
+    if (isSignup && !name) return;
 
     setStatus("loading");
 
     try {
       const url = isSignup
-        ? "http://localhost:5000/api/signup"
-        : "http://localhost:5000/api/login";
+        ? `${API_BASE_URL}/api/signup`
+        : `${API_BASE_URL}/api/login`;
 
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(isSignup ? { name, email, password } : { email, password }),
       });
 
       const contentType = res.headers.get("content-type") || "";
@@ -306,20 +359,22 @@ function SignForm() {
 
         if (res.ok) {
           setStatus("success");
-          showNotification(
-            isSignup ? t("signup_success") : t("login_success"),
-            "success"
-          );
+          
+          if (isSignup) {
+            showNotification(t("signup_success"), "success");
+            setIsSignup(false);
+          } else {
+            // Store token and user data for login
+            localStorage.setItem("token", data.token);
+            setUserData(data.user);
+            showNotification(t("login_success"), "success");
+          }
 
           setTimeout(() => {
             setStatus("idle");
-            if (!isSignup) {
-              window.location.href = "https://busseva.vercel.app/admin";
-            } else {
-              setIsSignup(false);
-              setEmail("");
-              setPassword("");
-            }
+            setName("");
+            setEmail("");
+            setPassword("");
           }, 1600);
         } else {
           throw new Error(
@@ -338,6 +393,12 @@ function SignForm() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUserData(null);
+    showNotification("Logged out successfully", "info");
+  };
+
   const buttonLabel =
     status === "success"
       ? isSignup
@@ -346,6 +407,45 @@ function SignForm() {
       : isSignup
       ? t("sign_up")
       : t("sign_in");
+
+  // If user is logged in, show welcome message
+  if (userData) {
+    return (
+      <>
+        <style>{styles}</style>
+        <div className="login-container">
+          <div className="login-header">
+            <div className="bus-icon">🚌</div>
+            <div className="logo">{t("app_title")}</div>
+            <div className="welcome-text">{t("welcome_back")}</div>
+            <div className="subtitle">{t("user_welcome")}{userData.name}!</div>
+          </div>
+          
+          <div style={{ padding: "20px", textAlign: "center" }}>
+            <p style={{ marginBottom: "20px", color: "#64748b" }}>
+              You are successfully logged in as {userData.name} ({userData.email})
+            </p>
+            
+            <button 
+              className="login-btn" 
+              onClick={handleLogout}
+              style={{ marginTop: "20px" }}
+            >
+              Logout
+            </button>
+            
+            <button 
+              className="login-btn" 
+              onClick={() => window.location.href = "http://localhost:5173/admin"}
+              style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", marginTop: "10px" }}
+            >
+              Go to Admin Dashboard
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -377,6 +477,25 @@ function SignForm() {
         </div>
 
         <form className="login-form" onSubmit={handleFormSubmit}>
+          {isSignup && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="name">{t("name_label")}</label>
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  id="name"
+                  className="form-input"
+                  placeholder={t("name_placeholder")}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isLoading}
+                  required={isSignup}
+                  autoComplete="name"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="form-group">
             <label className="form-label" htmlFor="email">{t("email_label")}</label>
             <div className="input-wrapper">
@@ -390,7 +509,6 @@ function SignForm() {
                 disabled={isLoading}
                 required
                 autoComplete="email"
-                autoFocus
               />
             </div>
           </div>
@@ -437,6 +555,7 @@ function SignForm() {
                 e.preventDefault();
                 setIsSignup((prev) => !prev);
                 setStatus("idle");
+                setName("");
                 setEmail("");
                 setPassword("");
                 showNotification(

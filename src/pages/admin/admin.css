@@ -622,6 +622,197 @@ body {
   animation: auroraDrift 28s ease-in-out infinite alternate;
 }
 
+/* Scope: Drivers table only */
+.drivers-left th,
+.drivers-left td {
+  text-align: left !important; /* force left alignment of cell content */
+}
+/* Force proper table layout */
+.bus-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto; /* ya fixed */
+}
+
+.bus-table th,
+.bus-table td {
+  text-align: left;   /* sabko left align karo */
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap; /* text ek line me rahe */
+}
+
+.bus-table th {
+  background: #f9f9f9;
+  font-weight: 600;
+}
+/* Layout stack */
+.page-stack {
+  display: grid;
+  gap: 24px;
+}
+
+/* Glass card */
+.card.glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.74));
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+  backdrop-filter: blur(10px); /* frosted effect */
+}
+
+/* Section header */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  position: relative;
+}
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 72px;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7c3aed, #6366f1, #22d3ee);
+}
+
+/* Small badge */
+.pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #4338ca;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+}
+
+/* Form grid */
+.form-grid.form-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .form-grid.form-3 { grid-template-columns: 1fr; }
+}
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+/* Inputs */
+.input-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  transition: box-shadow .2s ease, border-color .2s ease, background .2s ease;
+}
+.input-wrap:focus-within {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 4px rgba(124,58,237,.18);
+  background: #fff;
+}
+.input-icon { opacity: .6; }
+.input {
+  border: 0; outline: none; background: transparent;
+  width: 100%; color: #0f172a; font-size: 14px;
+}
+
+/* Form actions */
+.form-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+.form-actions.span-3 { grid-column: 1 / -1; }
+
+/* Primary button with glow */
+.btn.btn-gradient {
+  position: relative;
+  padding: 12px 20px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 700;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed, #db2777);
+  border: none;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+}
+.btn.btn-gradient::before {
+  content: "";
+  position: absolute; inset: 0; border-radius: 12px;
+  background: inherit; filter: blur(12px); opacity: .35; z-index: -1;
+}
+.btn.btn-gradient:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.btn.btn-gradient:active { transform: translateY(0); }
+
+/* Table */
+.table-wrap { overflow: auto; border: 1px solid #e5e7eb; border-radius: 14px; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* real table sizing */
+  color: #0f172a;
+}
+.data-table th, .data-table td {
+  text-align: left; /* force left alignment */
+  padding: 12px 16px;
+}
+.data-table thead th {
+  position: sticky; top: 0; z-index: 2;
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(8px);
+  border-bottom: 1px solid #e5e7eb;
+}
+.data-table tbody tr:nth-child(even) { background: #f8fafc; }
+.data-table tbody tr:hover { background: #eef2ff; }
+.data-table tbody tr + tr td { border-top: 1px solid #f1f5f9; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+/* Empty state */
+.empty-row { text-align: center; color: #64748b; padding: 18px 12px; }
+/* Reuse earlier styles from Drivers section (page-stack, card.glass, section-head, etc.) [already added] */
+
+/* Status badges (Buses table) */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  border: 1px solid transparent;
+}
+.status-badge.ok { color: #065f46; background: #ecfdf5; border-color: #d1fae5; }
+.status-badge.maint { color: #92400e; background: #fffbeb; border-color: #fde68a; }
+.status-badge.ghost { color: #7c2d12; background: #fff7ed; border-color: #fed7aa; }
+
+/* Occupancy meter */
+.meter {
+  position: relative; height: 10px; width: 140px; border-radius: 999px;
+  background: #e5e7eb; overflow: hidden; display: inline-block; vertical-align: middle;
+}
+.meter-fill {
+  height: 100%; border-radius: 999px; width: 0%;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed, #db2777);
+  transition: width .3s ease;
+}
+.meter-fill.mid { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.meter-fill.hi { background: linear-gradient(90deg, #ef4444, #dc2626); }
+.meter-val { margin-left: 10px; font-size: 12px; color: #475569; }
+
+/* Tables remain left-aligned with sticky header and zebra rows (from Drivers) */
+
+
 /* =========================
    ANIMATIONS
    ========================= */
@@ -651,4 +842,10 @@ body {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+/* FINAL FIX: Force left alignment ONLY for Drivers.jsx table */
+.table-responsive .bus-table.drivers-left th,
+.table-responsive .bus-table.drivers-left td {
+  text-align: left !important;
+  justify-content: flex-start !important;
 }
