@@ -1,4 +1,4 @@
-import './App.css'
+import "./App.css";
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -579,10 +579,10 @@ const BusSevaHomepage = () => {
                 </div>
               )}
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <LanguageSwitcher /> {/* Add this line */}
                 <Link to="/login" className="pressable" style={styles.adminBtn}>
                   {t("admin_login")}
                 </Link>
-
                 {isMobile && (
                   <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -846,11 +846,9 @@ const BusSevaHomepage = () => {
           >
             <div style={styles.container}>
               <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>How BusSeva Works</h2>
+                <h2 style={styles.sectionTitle}>{t("how_it_works_title")}</h2>
                 <p style={styles.sectionSubtitle}>
-                  The flow mirrors familiar patterns: search, select with
-                  ratings, live track, and pay digitally for a smooth, trusted
-                  booking journey.
+                  {t("how_it_works_subtitle")}
                 </p>
               </div>
               <div style={styles.howItWorksGrid}>
@@ -863,7 +861,7 @@ const BusSevaHomepage = () => {
                     <Users
                       style={{ width: 32, height: 32, color: "#2563eb" }}
                     />
-                    <h3 style={styles.processTitle}>For Passengers</h3>
+                    <h3 style={styles.processTitle}>{t("for_passengers")}</h3>
                   </div>
                   <div style={styles.processSteps}>
                     <div style={styles.processStep}>
@@ -876,11 +874,9 @@ const BusSevaHomepage = () => {
                         1
                       </div>
                       <div>
-                        <h4 style={styles.stepTitle}>Search & Book</h4>
+                        <h4 style={styles.stepTitle}>{t("search_book")}</h4>
                         <p style={styles.stepDescription}>
-                          Enter route, compare options with ratings, and book
-                          with digital payments for a fast, reliable experience
-                          .
+                          {t("search_book_desc")}
                         </p>
                       </div>
                     </div>
@@ -894,11 +890,9 @@ const BusSevaHomepage = () => {
                         2
                       </div>
                       <div>
-                        <h4 style={styles.stepTitle}>Track & Travel</h4>
+                        <h4 style={styles.stepTitle}>{t("track_travel")}</h4>
                         <p style={styles.stepDescription}>
-                          Track the bus live and get timely updates for
-                          stress-free boarding and accurate ETAs along the route
-                          .
+                          {t("track_travel_desc")}
                         </p>
                       </div>
                     </div>
@@ -912,11 +906,9 @@ const BusSevaHomepage = () => {
                         3
                       </div>
                       <div>
-                        <h4 style={styles.stepTitle}>Safety & Feedback</h4>
+                        <h4 style={styles.stepTitle}>{t("safety_feedback")}</h4>
                         <p style={styles.stepDescription}>
-                          Use safety tools and share verified feedback to
-                          improve transparency and service quality for everyone
-                          .
+                          {t("safety_feedback_desc")}
                         </p>
                       </div>
                     </div>
@@ -931,7 +923,7 @@ const BusSevaHomepage = () => {
                     <UserCheck
                       style={{ width: 32, height: 32, color: "#16a34a" }}
                     />
-                    <h3 style={styles.processTitle}>For Drivers</h3>
+                    <h3 style={styles.processTitle}>{t("for_drivers")}</h3>
                   </div>
                   <div style={styles.processSteps}>
                     <div style={styles.processStep}>
@@ -944,10 +936,11 @@ const BusSevaHomepage = () => {
                         1
                       </div>
                       <div>
-                        <h4 style={styles.stepTitle}>Identity Verification</h4>
+                        <h4 style={styles.stepTitle}>
+                          {t("identity_verification")}
+                        </h4>
                         <p style={styles.stepDescription}>
-                          Secure onboarding and identity checks help build trust
-                          and accountability within the network .
+                          {t("identity_verification_desc")}
                         </p>
                       </div>
                     </div>
@@ -961,10 +954,11 @@ const BusSevaHomepage = () => {
                         2
                       </div>
                       <div>
-                        <h4 style={styles.stepTitle}>Route Management</h4>
+                        <h4 style={styles.stepTitle}>
+                          {t("route_management")}
+                        </h4>
                         <p style={styles.stepDescription}>
-                          Follow assigned routes and keep occupancy info updated
-                          to reduce uncertainties during boarding .
+                          {t("route_management_desc")}
                         </p>
                       </div>
                     </div>
@@ -978,11 +972,9 @@ const BusSevaHomepage = () => {
                         3
                       </div>
                       <div>
-                        <h4 style={styles.stepTitle}>GPS Tracking</h4>
+                        <h4 style={styles.stepTitle}>{t("gps_tracking")}</h4>
                         <p style={styles.stepDescription}>
-                          Periodic location sharing powers passenger tracking
-                          and improves operational visibility end-to-end
-                          .
+                          {t("gps_tracking_desc")}
                         </p>
                       </div>
                     </div>
@@ -999,63 +991,54 @@ const BusSevaHomepage = () => {
           >
             <div style={styles.container}>
               <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>Powerful Features</h2>
-                <p style={styles.sectionSubtitle}>
-                  Designed around proven patterns: ratings for quality, live
-                  tracking for certainty, and offers that encourage adoption.
-                </p>
+                <h2 style={styles.sectionTitle}>{t("features_title")}</h2>
+                <p style={styles.sectionSubtitle}>{t("features_subtitle")}</p>
               </div>
               <div style={styles.featuresGrid}>
                 <div style={styles.featureCard} className="hover-bump">
                   <Shield style={{ ...styles.featureIcon, color: "#2563eb" }} />
-                  <h3 style={styles.featureTitle}>Enhanced Security</h3>
+                  <h3 style={styles.featureTitle}>{t("enhanced_security")}</h3>
                   <p style={styles.featureDescription}>
-                    Identity checks and transparent activity help create a safer
-                    travel ecosystem passengers can trust.
+                    {t("features_subtitle")}
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
                   <MapPin style={{ ...styles.featureIcon, color: "#16a34a" }} />
-                  <h3 style={styles.featureTitle}>Real-time Tracking</h3>
+                  <h3 style={styles.featureTitle}>{t("realtime_tracking")}</h3>
                   <p style={styles.featureDescription}>
-                    Live bus location and updates reduce wait anxiety and
-                    improve time-to-board accuracy.
+                    {t("realtime_tracking_desc")}
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
                   <AlertTriangle
                     style={{ ...styles.featureIcon, color: "#dc2626" }}
                   />
-                  <h3 style={styles.featureTitle}>SOS & Safety</h3>
+                  <h3 style={styles.featureTitle}>{t("sos_safety")}</h3>
                   <p style={styles.featureDescription}>
-                    Built-in escalation and reporting options enhance
-                    confidence, especially on crowded corridors.
+                    {t("sos_safety_desc")}
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
                   <Smartphone
                     style={{ ...styles.featureIcon, color: "#7c3aed" }}
                   />
-                  <h3 style={styles.featureTitle}>Digital Ticketing</h3>
+                  <h3 style={styles.featureTitle}>{t("digital_ticketing")}</h3>
                   <p style={styles.featureDescription}>
-                    Fast, multi-method checkout and confirmations mirror the
-                    best-in-class mobile booking experience.
+                    {t("digital_ticketing_desc")}
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
                   <Star style={{ ...styles.featureIcon, color: "#eab308" }} />
-                  <h3 style={styles.featureTitle}>Verified Reviews</h3>
+                  <h3 style={styles.featureTitle}>{t("verified_reviews")}</h3>
                   <p style={styles.featureDescription}>
-                    Ratings and reviews help riders choose reliable operators
-                    and premium-quality services .
+                    {t("verified_reviews_desc")}
                   </p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
                   <Users style={{ ...styles.featureIcon, color: "#6366f1" }} />
-                  <h3 style={styles.featureTitle}>Occupancy Tracking</h3>
+                  <h3 style={styles.featureTitle}>{t("occupancy_tracking")}</h3>
                   <p style={styles.featureDescription}>
-                    Capacity visibility reduces overcrowding and improves
-                    boarding decisions during peak hours .
+                    {t("occupancy_tracking_desc")}
                   </p>
                 </div>
               </div>
@@ -1069,12 +1052,8 @@ const BusSevaHomepage = () => {
           >
             <div style={styles.container}>
               <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>Three Integrated Platforms</h2>
-                <p style={styles.sectionSubtitle}>
-                  Passenger app, driver app, and admin web unify booking,
-                  tracking, verification, and analytics for reliability at scale
-                  .
-                </p>
+                <h2 style={styles.sectionTitle}>{t("platforms_title")}</h2>
+                <p style={styles.sectionSubtitle}>{t("platforms_subtitle")}</p>
               </div>
               <div style={styles.platformsGrid}>
                 <div
@@ -1082,31 +1061,31 @@ const BusSevaHomepage = () => {
                   className="hover-bump"
                 >
                   <Users style={{ width: 48, height: 48, marginBottom: 18 }} />
-                  <h3 style={styles.platformTitle}>User Mobile App</h3>
+                  <h3 style={styles.platformTitle}>{t("user_mobile_app")}</h3>
                   <div style={styles.platformFeatures}>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Bus search and booking</span>
+                      <span>{t("bus_search_booking")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Real-time tracking</span>
+                      <span>{t("realtime_tracking_feature")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Digital payments</span>
+                      <span>{t("digital_payments")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Alerts & updates</span>
+                      <span>{t("alerts_updates")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Safety tools</span>
+                      <span>{t("safety_tools")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Ratings & reviews</span>
+                      <span>{t("ratings_reviews")}</span>
                     </div>
                   </div>
                 </div>
@@ -1121,31 +1100,31 @@ const BusSevaHomepage = () => {
                   <UserCheck
                     style={{ width: 48, height: 48, marginBottom: 18 }}
                   />
-                  <h3 style={styles.platformTitle}>Driver Mobile App</h3>
+                  <h3 style={styles.platformTitle}>{t("driver_mobile_app")}</h3>
                   <div style={styles.platformFeatures}>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Verification & KYC</span>
+                      <span>{t("verification_kyc")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>GPS trip tracking</span>
+                      <span>{t("gps_trip_tracking")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Route guidance</span>
+                      <span>{t("route_guidance")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Occupancy updates</span>
+                      <span>{t("occupancy_updates")}s</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Incident reporting</span>
+                      <span>{t("incident_reporting")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Trip management</span>
+                      <span>{t("trip_management")}</span>
                     </div>
                   </div>
                 </div>
@@ -1160,31 +1139,33 @@ const BusSevaHomepage = () => {
                   <Settings
                     style={{ width: 48, height: 48, marginBottom: 18 }}
                   />
-                  <h3 style={styles.platformTitle}>Admin Web Dashboard</h3>
+                  <h3 style={styles.platformTitle}>
+                    {t("admin_web_dashboard")}
+                  </h3>
                   <div style={styles.platformFeatures}>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Fleet management</span>
+                      <span>{t("fleet_management")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Driver verification</span>
+                      <span>{t("driver_verification")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Route planning</span>
+                      <span>{t("route_planning")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Analytics & SLAs</span>
+                      <span>{t("analytics_slas")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>Risk monitoring</span>
+                      <span>{t("risk_monitoring")}</span>
                     </div>
                     <div style={styles.platformFeature}>
                       <CheckCircle size={20} />
-                      <span>System health</span>
+                      <span>{t("system_health")}</span>
                     </div>
                   </div>
                 </div>
@@ -1207,23 +1188,17 @@ const BusSevaHomepage = () => {
                 }}
               >
                 <Gift size={18} />
-                <span style={{ fontWeight: 800 }}>Festive Offers Live</span>
+                <span style={{ fontWeight: 800 }}>{t("festive_offers")}</span>
                 <Sparkles size={18} />
               </div>
-              <h2 style={styles.ctaTitle}>
-                Ready to Transform Public Transport?
-              </h2>
-              <p style={styles.ctaSubtitle}>
-                Bring trusted search, live tracking, and compelling offers
-                together to deliver a top-tier rider experience across India
-                .
-              </p>
+              <h2 style={styles.ctaTitle}>{t("cta_title")}</h2>
+              <p style={styles.ctaSubtitle}>{t("cta_subtitle")}</p>
               <div style={styles.ctaButtons}>
                 <button style={styles.ctaButton} className="pressable">
-                  Download User App
+                  {t("download_user_app")}
                 </button>
                 <button style={styles.ctaButton} className="pressable">
-                  Download Driver App
+                  {t("download_driver_app")}
                 </button>
               </div>
             </div>
