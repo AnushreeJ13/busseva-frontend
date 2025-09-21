@@ -5,6 +5,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 // Import translation files
 import translationEN from "./locales/en/translation.json";
 import translationHI from "./locales/hi/translation.json";
+import translationMR from "./locales/mr/translation.json";
 
 // Create resources object
 const resources = {
@@ -13,6 +14,9 @@ const resources = {
   },
   hi: {
     translation: translationHI,
+  },
+  mr: {
+    translation: translationMR,
   },
 };
 
