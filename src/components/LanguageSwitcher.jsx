@@ -4,6 +4,10 @@ import { useTranslation } from "react-i18next";
 function LanguageSwitcher() {
   const { i18n } = useTranslation();
 
+  const handleChange = (e) => {
+    i18n.changeLanguage(e.target.value);
+  };
+
   return (
     <div
       style={{
@@ -12,38 +16,27 @@ function LanguageSwitcher() {
         right: "20px",
         zIndex: 1000,
         background: "rgba(255, 255, 255, 0.9)",
-        padding: "10px",
+        padding: "8px",
         borderRadius: "10px",
         backdropFilter: "blur(10px)",
       }}
     >
-      <button
-        onClick={() => i18n.changeLanguage("en")}
+      <select
+        value={i18n.language}
+        onChange={handleChange}
         style={{
-          marginRight: "10px",
-          padding: "5px 15px",
-          background: i18n.language === "en" ? "#4f46e5" : "#e2e8f0",
-          color: i18n.language === "en" ? "white" : "#374151",
-          border: "none",
+          padding: "6px 12px",
           borderRadius: "6px",
+          border: "1px solid #ccc",
+          background: "white",
           cursor: "pointer",
+          fontSize: "14px",
         }}
       >
-        English
-      </button>
-      <button
-        onClick={() => i18n.changeLanguage("hi")}
-        style={{
-          padding: "5px 15px",
-          background: i18n.language === "hi" ? "#4f46e5" : "#e2e8f0",
-          color: i18n.language === "hi" ? "white" : "#374151",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-      >
-        हिंदी
-      </button>
+        <option value="en">English</option>
+        <option value="hi">हिंदी</option>
+        <option value="mr">marathi</option>
+      </select>
     </div>
   );
 }
