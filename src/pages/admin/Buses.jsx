@@ -1,6 +1,7 @@
 // src/pages/admin/Buses.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { db } from "../../lib/firebase";
+import { useNavigate } from "react-router-dom";
 import {
   collection,
   addDoc,
@@ -11,9 +12,42 @@ import {
   where,
 } from "firebase/firestore";
 import { getCountFromServer } from "firebase/firestore";
-
+function showNotification(message, type = "info") {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed; top: 20px; right: 20px; padding: 12px 20px;
+    background: ${
+      type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#4f46e5"
+    };
+    color: white; border-radius: 10px; font-weight: 600; z-index: 10000;
+    transform: translateX(400px); transition: transform 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  setTimeout(() => {
+    notification.style.transform = "translateX(0)";
+  }, 100);
+  setTimeout(() => {
+    notification.style.transform = "translateX(400px)";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
 export default function Buses() {
+  const navigate = useNavigate();
   const [buses, setBuses] = useState([]);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    showNotification("Logged out successfully", "info");
+    navigate("/login");
+  };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   const [form, setForm] = useState({
     number: "",
     route: "",
@@ -55,12 +89,16 @@ export default function Buses() {
     const refreshCounts = async () => {
       try {
         const coll = collection(db, "buses");
-        const [totalSnap, activeSnap, maintSnap, ghostSnap] = await Promise.all([
-          getCountFromServer(coll),
-          getCountFromServer(query(coll, where("status", "==", "ACTIVE"))),
-          getCountFromServer(query(coll, where("status", "==", "MAINTENANCE"))),
-          getCountFromServer(query(coll, where("status", "==", "GHOST BUS"))),
-        ]);
+        const [totalSnap, activeSnap, maintSnap, ghostSnap] = await Promise.all(
+          [
+            getCountFromServer(coll),
+            getCountFromServer(query(coll, where("status", "==", "ACTIVE"))),
+            getCountFromServer(
+              query(coll, where("status", "==", "MAINTENANCE"))
+            ),
+            getCountFromServer(query(coll, where("status", "==", "GHOST BUS"))),
+          ]
+        );
         if (!isMounted) return;
         setCounts({
           total: totalSnap.data().count || 0,
@@ -93,11 +131,21 @@ export default function Buses() {
     };
     if (!payload.number || !payload.route || !payload.driver) return;
     await addDoc(collection(db, "buses"), payload);
-    setForm({ number: "", route: "", driver: "", status: "ACTIVE", occupancy: 0 });
+    setForm({
+      number: "",
+      route: "",
+      driver: "",
+      status: "ACTIVE",
+      occupancy: 0,
+    });
   };
 
   const statusClass = (s) =>
-    s === "ACTIVE" ? "status-badge ok" : s === "MAINTENANCE" ? "status-badge maint" : "status-badge ghost";
+    s === "ACTIVE"
+      ? "status-badge ok"
+      : s === "MAINTENANCE"
+      ? "status-badge maint"
+      : "status-badge ghost";
 
   // Derived lists for dropdowns
   const routes = useMemo(
@@ -105,7 +153,8 @@ export default function Buses() {
     [buses]
   );
   const drivers = useMemo(
-    () => Array.from(new Set(buses.map((b) => b.driver).filter(Boolean))).sort(),
+    () =>
+      Array.from(new Set(buses.map((b) => b.driver).filter(Boolean))).sort(),
     [buses]
   );
 
@@ -114,7 +163,9 @@ export default function Buses() {
     const q = filters.search.trim().toLowerCase();
     return buses.filter((b) => {
       const occ = Number(b.occupancy ?? 0);
-      const text = `${b.number ?? ""} ${b.route ?? ""} ${b.driver ?? ""}`.toLowerCase();
+      const text = `${b.number ?? ""} ${b.route ?? ""} ${
+        b.driver ?? ""
+      }`.toLowerCase();
       if (q && !text.includes(q)) return false;
       if (filters.route !== "ALL" && b.route !== filters.route) return false;
       if (filters.driver !== "ALL" && b.driver !== filters.driver) return false;
@@ -128,11 +179,13 @@ export default function Buses() {
   const sorted = useMemo(() => {
     const arr = [...filtered];
     if (filters.sortBy === "occupancy_desc") {
-      arr.sort((a, b) => (Number(b.occupancy ?? 0) - Number(a.occupancy ?? 0)));
+      arr.sort((a, b) => Number(b.occupancy ?? 0) - Number(a.occupancy ?? 0));
     } else if (filters.sortBy === "occupancy_asc") {
-      arr.sort((a, b) => (Number(a.occupancy ?? 0) - Number(b.occupancy ?? 0)));
+      arr.sort((a, b) => Number(a.occupancy ?? 0) - Number(b.occupancy ?? 0));
     } else if (filters.sortBy === "number_asc") {
-      arr.sort((a, b) => String(a.number ?? "").localeCompare(String(b.number ?? "")));
+      arr.sort((a, b) =>
+        String(a.number ?? "").localeCompare(String(b.number ?? ""))
+      );
     }
     return arr;
   }, [filtered, filters.sortBy]);
@@ -143,7 +196,10 @@ export default function Buses() {
     const sum = buses.reduce((acc, b) => acc + Number(b.occupancy ?? 0), 0);
     return Math.round((sum / buses.length) * 10) / 10;
   }, [buses]);
-  const highUtil = useMemo(() => buses.filter((b) => Number(b.occupancy ?? 0) >= 80).length, [buses]);
+  const highUtil = useMemo(
+    () => buses.filter((b) => Number(b.occupancy ?? 0) >= 80).length,
+    [buses]
+  );
 
   const exportCSV = () => {
     const header = ["Bus Number", "Route", "Driver", "Status", "Occupancy"];
@@ -155,7 +211,10 @@ export default function Buses() {
       String(b.occupancy ?? 0),
     ]);
     const esc = (s) => `"${String(s).replace(/"/g, '""')}"`;
-    const csv = [header.map(esc).join(","), ...lines.map((r) => r.map(esc).join(","))].join("\n");
+    const csv = [
+      header.map(esc).join(","),
+      ...lines.map((r) => r.map(esc).join(",")),
+    ].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -166,7 +225,15 @@ export default function Buses() {
   };
 
   const clearFilters = () =>
-    setFilters({ search: "", route: "ALL", driver: "ALL", status: "ALL", occMin: 0, occMax: 100, sortBy: "createdAt_desc" });
+    setFilters({
+      search: "",
+      route: "ALL",
+      driver: "ALL",
+      status: "ALL",
+      occMin: 0,
+      occMax: 100,
+      sortBy: "createdAt_desc",
+    });
 
   return (
     <div className="page-stack">
@@ -185,7 +252,9 @@ export default function Buses() {
               <input
                 ref={firstInputRef}
                 value={form.number}
-                onChange={(e) => setForm((s) => ({ ...s, number: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, number: e.target.value }))
+                }
                 placeholder="UP 32 AB 1234"
                 required
                 className="input"
@@ -199,7 +268,9 @@ export default function Buses() {
               <span className="input-icon">🗺️</span>
               <input
                 value={form.route}
-                onChange={(e) => setForm((s) => ({ ...s, route: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, route: e.target.value }))
+                }
                 placeholder="Delhi - Agra"
                 required
                 className="input"
@@ -213,7 +284,9 @@ export default function Buses() {
               <span className="input-icon">👤</span>
               <input
                 value={form.driver}
-                onChange={(e) => setForm((s) => ({ ...s, driver: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, driver: e.target.value }))
+                }
                 placeholder="राम कुमार"
                 required
                 className="input"
@@ -227,7 +300,9 @@ export default function Buses() {
               <span className="input-icon">⚙️</span>
               <select
                 value={form.status}
-                onChange={(e) => setForm((s) => ({ ...s, status: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, status: e.target.value }))
+                }
                 className="input select"
               >
                 <option value="ACTIVE">ACTIVE</option>
@@ -246,14 +321,18 @@ export default function Buses() {
                 min={0}
                 max={100}
                 value={form.occupancy}
-                onChange={(e) => setForm((s) => ({ ...s, occupancy: e.target.value }))}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, occupancy: e.target.value }))
+                }
                 className="input"
               />
             </div>
           </label>
 
           <div className="form-actions span-3">
-            <button type="submit" className="btn btn-gradient">Save Bus</button>
+            <button type="submit" className="btn btn-gradient">
+              Save Bus
+            </button>
           </div>
         </form>
       </section>
@@ -263,8 +342,12 @@ export default function Buses() {
         <header className="section-head">
           <h3 className="section-title">Filters & Analytics</h3>
           <div className="toolbar" style={{ display: "flex", gap: 12 }}>
-            <button type="button" className="btn" onClick={exportCSV}>Export CSV</button>
-            <button type="button" className="btn ghost" onClick={clearFilters}>Clear</button>
+            <button type="button" className="btn" onClick={exportCSV}>
+              Export CSV
+            </button>
+            <button type="button" className="btn ghost" onClick={clearFilters}>
+              Clear
+            </button>
           </div>
         </header>
 
@@ -275,7 +358,9 @@ export default function Buses() {
               <span className="input-icon">🔎</span>
               <input
                 value={filters.search}
-                onChange={(e) => setFilters((s) => ({ ...s, search: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((s) => ({ ...s, search: e.target.value }))
+                }
                 placeholder="Search number / route / driver"
                 className="input"
               />
@@ -288,11 +373,17 @@ export default function Buses() {
               <span className="input-icon">🧭</span>
               <select
                 value={filters.route}
-                onChange={(e) => setFilters((s) => ({ ...s, route: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((s) => ({ ...s, route: e.target.value }))
+                }
                 className="input select"
               >
                 <option value="ALL">All</option>
-                {routes.map((r) => <option key={r} value={r}>{r}</option>)}
+                {routes.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
               </select>
             </div>
           </label>
@@ -303,11 +394,17 @@ export default function Buses() {
               <span className="input-icon">🚖</span>
               <select
                 value={filters.driver}
-                onChange={(e) => setFilters((s) => ({ ...s, driver: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((s) => ({ ...s, driver: e.target.value }))
+                }
                 className="input select"
               >
                 <option value="ALL">All</option>
-                {drivers.map((d) => <option key={d} value={d}>{d}</option>)}
+                {drivers.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
               </select>
             </div>
           </label>
@@ -318,7 +415,9 @@ export default function Buses() {
               <span className="input-icon">📦</span>
               <select
                 value={filters.status}
-                onChange={(e) => setFilters((s) => ({ ...s, status: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((s) => ({ ...s, status: e.target.value }))
+                }
                 className="input select"
               >
                 <option value="ALL">All</option>
@@ -333,13 +432,21 @@ export default function Buses() {
             <span className="field-label">Occupancy Range</span>
             <div className="input-wrap">
               <span className="input-icon">🎚️</span>
-              <div className="range-wrap" style={{ display: "flex", gap: 8, width: "100%" }}>
+              <div
+                className="range-wrap"
+                style={{ display: "flex", gap: 8, width: "100%" }}
+              >
                 <input
                   type="number"
                   min={0}
                   max={100}
                   value={filters.occMin}
-                  onChange={(e) => setFilters((s) => ({ ...s, occMin: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setFilters((s) => ({
+                      ...s,
+                      occMin: Number(e.target.value),
+                    }))
+                  }
                   className="input"
                   style={{ maxWidth: 90 }}
                 />
@@ -349,7 +456,12 @@ export default function Buses() {
                   min={0}
                   max={100}
                   value={filters.occMax}
-                  onChange={(e) => setFilters((s) => ({ ...s, occMax: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setFilters((s) => ({
+                      ...s,
+                      occMax: Number(e.target.value),
+                    }))
+                  }
                   className="input"
                   style={{ maxWidth: 90 }}
                 />
@@ -363,7 +475,9 @@ export default function Buses() {
               <span className="input-icon">🔽</span>
               <select
                 value={filters.sortBy}
-                onChange={(e) => setFilters((s) => ({ ...s, sortBy: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((s) => ({ ...s, sortBy: e.target.value }))
+                }
                 className="input select"
               >
                 <option value="createdAt_desc">Newest</option>
@@ -376,7 +490,15 @@ export default function Buses() {
         </div>
 
         {/* KPI tiles */}
-        <div className="kpis" style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0,1fr))", gap: 12, marginTop: 12 }}>
+        <div
+          className="kpis"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(5, minmax(0,1fr))",
+            gap: 12,
+            marginTop: 12,
+          }}
+        >
           <div className="kpi-tile">
             <div className="kpi-title">Total</div>
             <div className="kpi-value">{counts.total}</div>
@@ -427,11 +549,19 @@ export default function Buses() {
                   <td>{b.number}</td>
                   <td>{b.route}</td>
                   <td>{b.driver}</td>
-                  <td><span className={statusClass(b.status)}>{b.status}</span></td>
+                  <td>
+                    <span className={statusClass(b.status)}>{b.status}</span>
+                  </td>
                   <td>
                     <div className="meter">
                       <div
-                        className={`meter-fill ${Number(b.occupancy ?? 0) >= 80 ? "hi" : Number(b.occupancy ?? 0) >= 50 ? "mid" : "lo"}`}
+                        className={`meter-fill ${
+                          Number(b.occupancy ?? 0) >= 80
+                            ? "hi"
+                            : Number(b.occupancy ?? 0) >= 50
+                            ? "mid"
+                            : "lo"
+                        }`}
                         style={{ width: `${b.occupancy ?? 0}%` }}
                       />
                     </div>
@@ -441,7 +571,9 @@ export default function Buses() {
               ))}
               {sorted.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="empty-row">No buses match filters</td>
+                  <td colSpan={5} className="empty-row">
+                    No buses match filters
+                  </td>
                 </tr>
               )}
             </tbody>

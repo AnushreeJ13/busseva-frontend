@@ -2,9 +2,19 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
-  Bus, Users, AlertTriangle, TrendingUp, MapPin,
-  Settings as SettingsIcon, Plus, Bell, BarChart3,
-  Route as RouteIcon, UserCheck, AlertCircle, Clock
+  Bus,
+  Users,
+  AlertTriangle,
+  TrendingUp,
+  MapPin,
+  Settings as SettingsIcon,
+  Plus,
+  Bell,
+  BarChart3,
+  Route as RouteIcon,
+  UserCheck,
+  AlertCircle,
+  Clock,
 } from "lucide-react";
 import "./admin.css";
 
@@ -24,11 +34,36 @@ import {
 
 function getStatusColorClass(status) {
   switch (status) {
-    case "ACTIVE": return "status-active";
-    case "MAINTENANCE": return "status-maintenance";
-    case "GHOST BUS": return "status-ghost";
-    default: return "";
+    case "ACTIVE":
+      return "status-active";
+    case "MAINTENANCE":
+      return "status-maintenance";
+    case "GHOST BUS":
+      return "status-ghost";
+    default:
+      return "";
   }
+}
+function showNotification(message, type = "info") {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed; top: 20px; right: 20px; padding: 12px 20px;
+    background: ${
+      type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#4f46e5"
+    };
+    color: white; border-radius: 10px; font-weight: 600; z-index: 10000;
+    transform: translateX(400px); transition: transform 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  setTimeout(() => {
+    notification.style.transform = "translateX(0)";
+  }, 100);
+  setTimeout(() => {
+    notification.style.transform = "translateX(400px)";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
 }
 function getOccupancyColorClass(occupancy) {
   const n = Number(occupancy ?? 0);
@@ -55,7 +90,20 @@ export default function Admin() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const validTabs = new Set(["dashboard", "buses", "drivers", "routes", "alerts", "settings"]);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    showNotification("Logged out successfully", "info");
+    navigate("/login");
+  };
+
+  const validTabs = new Set([
+    "dashboard",
+    "buses",
+    "drivers",
+    "routes",
+    "alerts",
+    "settings",
+  ]);
 
   // URL <-> UI sync
   useEffect(() => {
@@ -65,28 +113,35 @@ export default function Admin() {
   }, [location.pathname]); // eslint-disable-line
 
   useEffect(() => {
-  const fetchUserData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const response = await fetch("https://busseva.onrender.com/api/user", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setAdminName(userData.name);
-      }
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
     }
-  };
+  }, [navigate]);
 
-  fetchUserData();
-}, []);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const response = await fetch("https://busseva.onrender.com/api/user", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          setAdminName(userData.name);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Live Firestore state
   const [buses, setBuses] = useState([]);
@@ -105,7 +160,11 @@ export default function Admin() {
 
   // Live alerts (latest 10)
   useEffect(() => {
-    const qRef = query(collection(db, "alerts"), orderBy("createdAt", "desc"), limit(10));
+    const qRef = query(
+      collection(db, "alerts"),
+      orderBy("createdAt", "desc"),
+      limit(10)
+    );
     const unsub = onSnapshot(qRef, (snap) => {
       setAlerts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
@@ -132,7 +191,9 @@ export default function Admin() {
       }
     };
     run();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Today's revenue (payments collection with { amount:number, createdAt:Timestamp })
@@ -141,11 +202,29 @@ export default function Admin() {
     const run = async () => {
       try {
         const now = new Date();
-        const start = Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0));
-        const end = Timestamp.fromDate(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0));
+        const start = Timestamp.fromDate(
+          new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+        );
+        const end = Timestamp.fromDate(
+          new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() + 1,
+            0,
+            0,
+            0,
+            0
+          )
+        );
         const base = collection(db, "payments");
-        const qRef = query(base, where("createdAt", ">=", start), where("createdAt", "<", end));
-        const agg = await getAggregateFromServer(qRef, { total: sum("amount") });
+        const qRef = query(
+          base,
+          where("createdAt", ">=", start),
+          where("createdAt", "<", end)
+        );
+        const agg = await getAggregateFromServer(qRef, {
+          total: sum("amount"),
+        });
         if (!mounted) return;
         setTodayRevenue(Number(agg.data().total ?? 0));
       } catch {
@@ -153,12 +232,19 @@ export default function Admin() {
       }
     };
     run();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Derived metrics
   const activeDrivers = useMemo(() => {
-    const set = new Set(buses.filter((b) => b.status === "ACTIVE").map((b) => b.driver).filter(Boolean));
+    const set = new Set(
+      buses
+        .filter((b) => b.status === "ACTIVE")
+        .map((b) => b.driver)
+        .filter(Boolean)
+    );
     return set.size;
   }, [buses]);
 
@@ -179,7 +265,11 @@ export default function Admin() {
   const currency = (n) => {
     if (n == null) return "—";
     try {
-      return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }).format(n);
     } catch {
       return `₹${n}`;
     }
@@ -189,7 +279,9 @@ export default function Admin() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", "metro-neon");
 
-    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const aur = document.createElement("div");
     aur.className = "aurora-layer";
@@ -222,7 +314,14 @@ export default function Admin() {
       };
 
       const confettiBurst = (x, y) => {
-        const colors = ["#7c3aed", "#dc2626", "#22c55e", "#f59e0b", "#2563eb", "#ec4899"];
+        const colors = [
+          "#7c3aed",
+          "#dc2626",
+          "#22c55e",
+          "#f59e0b",
+          "#2563eb",
+          "#ec4899",
+        ];
         const n = 18;
         for (let i = 0; i < n; i++) {
           const d = document.createElement("div");
@@ -230,7 +329,9 @@ export default function Admin() {
           d.style.left = x + "px";
           d.style.top = y + "px";
           d.style.background = colors[i % colors.length];
-          d.style.transform += ` translate(${(Math.random() * 2 - 1) * 16}px, ${(Math.random() * 2 - 1) * 12}px) rotate(${Math.random() * 360}deg)`;
+          d.style.transform += ` translate(${(Math.random() * 2 - 1) * 16}px, ${
+            (Math.random() * 2 - 1) * 12
+          }px) rotate(${Math.random() * 360}deg)`;
           d.style.animationDelay = Math.random() * 0.12 + "s";
           d.style.animationDuration = 0.7 + Math.random() * 0.5 + "s";
           document.body.appendChild(d);
@@ -301,9 +402,12 @@ export default function Admin() {
             <Bell size={20} />
             <span className="notification-badge">{alerts.length}</span>
           </div>
-          <button className="add-bus-btn" ref={addBusRef}>
-            <Plus size={16} />
-            <span>Add Bus</span>
+          <button
+            className="add-bus-btn"
+            ref={addBusRef}
+            onClick={handleLogout}
+          >
+            <span>Logout</span>
           </button>
         </div>
       </header>
@@ -318,7 +422,11 @@ export default function Admin() {
                 { id: "buses", label: "Bus Management", icon: Bus },
                 { id: "drivers", label: "Driver Management", icon: UserCheck },
                 { id: "routes", label: "Route Management", icon: RouteIcon },
-                { id: "alerts", label: "Alerts & Reports", icon: AlertTriangle },
+                {
+                  id: "alerts",
+                  label: "Alerts & Reports",
+                  icon: AlertTriangle,
+                },
                 { id: "settings", label: "Settings", icon: SettingsIcon },
               ].map((item) => (
                 <li key={item.id} className="sidebar-nav-item">
@@ -343,10 +451,26 @@ export default function Admin() {
 
               {/* Stats Cards */}
               <div className="stats-grid">
-                <StatCard title="Total Buses" value={String(counts.total)} icon={Bus} />
-                <StatCard title="Active Drivers" value={String(activeDrivers)} icon={Users} />
-                <StatCard title="Ghost Buses" value={String(counts.ghost)} icon={AlertTriangle} />
-                <StatCard title="Today's Revenue" value={currency(todayRevenue)} icon={TrendingUp} />
+                <StatCard
+                  title="Total Buses"
+                  value={String(counts.total)}
+                  icon={Bus}
+                />
+                <StatCard
+                  title="Active Drivers"
+                  value={String(activeDrivers)}
+                  icon={Users}
+                />
+                <StatCard
+                  title="Ghost Buses"
+                  value={String(counts.ghost)}
+                  icon={AlertTriangle}
+                />
+                <StatCard
+                  title="Today's Revenue"
+                  value={currency(todayRevenue)}
+                  icon={TrendingUp}
+                />
               </div>
 
               {/* Live Bus Status */}
@@ -376,7 +500,11 @@ export default function Admin() {
                           <td>{bus.route}</td>
                           <td>{bus.driver}</td>
                           <td>
-                            <span className={`status-pill ${getStatusColorClass(bus.status)}`}>
+                            <span
+                              className={`status-pill ${getStatusColorClass(
+                                bus.status
+                              )}`}
+                            >
                               {bus.status}
                             </span>
                           </td>
@@ -384,7 +512,9 @@ export default function Admin() {
                             <div className="occupancy-cell">
                               <div className="occupancy-bar-container">
                                 <div
-                                  className={`occupancy-bar ${getOccupancyColorClass(bus.occupancy)}`}
+                                  className={`occupancy-bar ${getOccupancyColorClass(
+                                    bus.occupancy
+                                  )}`}
                                   style={{ width: `${bus.occupancy}%` }}
                                 />
                               </div>
@@ -396,7 +526,12 @@ export default function Admin() {
                       ))}
                       {busRows.length === 0 && (
                         <tr>
-                          <td colSpan={6} style={{ textAlign: "center", opacity: 0.7 }}>No buses yet</td>
+                          <td
+                            colSpan={6}
+                            style={{ textAlign: "center", opacity: 0.7 }}
+                          >
+                            No buses yet
+                          </td>
                         </tr>
                       )}
                     </tbody>
@@ -415,7 +550,8 @@ export default function Admin() {
                 <div className="alerts-list">
                   {alerts.map((alert) => {
                     const ts = alert.createdAt?.toDate?.() || null;
-                    const type = alert.type === "ghost" ? "dot-ghost" : "dot-maintenance";
+                    const type =
+                      alert.type === "ghost" ? "dot-ghost" : "dot-maintenance";
                     return (
                       <div key={alert.id} className="alert-item">
                         <div className={`alert-dot ${type}`} />
@@ -430,7 +566,9 @@ export default function Admin() {
                     );
                   })}
                   {alerts.length === 0 && (
-                    <div className="alert-item" style={{ opacity: 0.7 }}>No alerts</div>
+                    <div className="alert-item" style={{ opacity: 0.7 }}>
+                      No alerts
+                    </div>
                   )}
                 </div>
               </div>

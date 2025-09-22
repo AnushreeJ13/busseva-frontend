@@ -27,6 +27,16 @@ import {
 } from "lucide-react";
 
 const BusSevaHomepage = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 600);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const { t } = useTranslation();
   const [showLogin, setShowLogin] = useState(false);
 
@@ -34,9 +44,7 @@ const BusSevaHomepage = () => {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== "undefined" ? window.innerWidth < 768 : false
-  );
+
   const [stats, setStats] = useState({ buses: 0, cities: 0, travelers: 0 });
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -486,6 +494,23 @@ const BusSevaHomepage = () => {
         color: "#334155",
         fontWeight: 700,
       },
+      navbarRight: {
+        display: "flex",
+        alignItems: "center",
+        gap: "16px",
+        flexWrap: "nowrap",
+        whiteSpace: "nowrap",
+      },
+      languageSwitcher: {
+        flexShrink: 0,
+        minWidth: "100px",
+      },
+      adminLoginBtn: {
+        flexShrink: 0,
+        padding: "8px 16px",
+        fontSize: "1rem",
+        whiteSpace: "nowrap",
+      },
     }),
     [isScrolled, isMobile]
   );
@@ -580,9 +605,14 @@ const BusSevaHomepage = () => {
                   </a>
                 </div>
               )}
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <LanguageSwitcher /> {/* Add this line */}
-                <Link to="/login" className="pressable" style={styles.adminBtn}>
+              <div style={styles.navbarRight}>
+                <LanguageSwitcher style={styles.languageSwitcher} />{" "}
+                {/* Add this line */}
+                <Link
+                  to="/login"
+                  className="pressable  adminBtn admin-login-btn"
+                  style={{ ...styles.adminLoginBtn, ...styles.adminBtn }}
+                >
                   {t("admin_login")}
                 </Link>
                 {isMobile && (

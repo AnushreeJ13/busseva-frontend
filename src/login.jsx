@@ -169,15 +169,22 @@ function showNotification(message, type = "info") {
   const notification = document.createElement("div");
   notification.style.cssText = `
     position: fixed; top: 20px; right: 20px; padding: 12px 20px;
-    background: ${type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#4f46e5"};
+    background: ${
+      type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#4f46e5"
+    };
     color: white; border-radius: 10px; font-weight: 600; z-index: 10000;
     transform: translateX(400px); transition: transform 0.3s ease;
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   `;
   notification.textContent = message;
   document.body.appendChild(notification);
-  setTimeout(() => { notification.style.transform = "translateX(0)"; }, 100);
-  setTimeout(() => { notification.style.transform = "translateX(400px)"; setTimeout(() => notification.remove(), 300); }, 3000);
+  setTimeout(() => {
+    notification.style.transform = "translateX(0)";
+  }, 100);
+  setTimeout(() => {
+    notification.style.transform = "translateX(400px)";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
 }
 
 // Lightweight dictionary
@@ -205,7 +212,7 @@ const translations = {
     account_created: "Account Created! 🎉",
     welcome_aboard: "Welcome Aboard! 🎉",
     language_label: "Language",
-    user_welcome: "Welcome, "
+    user_welcome: "Welcome, ",
   },
   hi: {
     app_title: "BusSeva",
@@ -230,7 +237,7 @@ const translations = {
     account_created: "खाता बन गया! 🎉",
     welcome_aboard: "स्वागत है! 🎉",
     language_label: "भाषा",
-    user_welcome: "स्वागत है, "
+    user_welcome: "स्वागत है, ",
   },
   mr: {
     app_title: "BusSeva",
@@ -255,8 +262,8 @@ const translations = {
     account_created: "खाते तयार झाले! 🎉",
     welcome_aboard: "स्वागत आहे! 🎉",
     language_label: "भाषा",
-    user_welcome: "स्वागत आहे, "
-  }
+    user_welcome: "स्वागत आहे, ",
+  },
 };
 
 const supported = ["en", "hi", "mr"];
@@ -264,8 +271,11 @@ const supported = ["en", "hi", "mr"];
 const detectLang = () => {
   const fallback = "en";
   if (typeof navigator !== "undefined") {
-    const list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language];
-    const primary = (list && list[0]) ? list[0] : fallback;
+    const list =
+      navigator.languages && navigator.languages.length
+        ? navigator.languages
+        : [navigator.language];
+    const primary = list && list[0] ? list[0] : fallback;
     const base = String(primary).toLowerCase().split("-")[0];
     return supported.includes(base) ? base : fallback;
   }
@@ -273,7 +283,6 @@ const detectLang = () => {
 };
 
 function SignForm() {
-  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -286,12 +295,15 @@ function SignForm() {
   const isLoading = status === "loading";
 
   const [lang, setLang] = useState(() => {
-    const saved = typeof localStorage !== "undefined" ? localStorage.getItem("lang") : null;
+    const saved =
+      typeof localStorage !== "undefined" ? localStorage.getItem("lang") : null;
     return saved || detectLang();
   });
 
   useEffect(() => {
-    try { localStorage.setItem("lang", lang); } catch {}
+    try {
+      localStorage.setItem("lang", lang);
+    } catch {}
   }, [lang]);
 
   // Check if user is already logged in
@@ -302,10 +314,10 @@ function SignForm() {
         if (token) {
           const response = await fetch(`${API_BASE_URL}/api/user`, {
             headers: {
-              "Authorization": `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
-          
+
           if (response.ok) {
             const userData = await response.json();
             setUserData(userData);
@@ -315,7 +327,7 @@ function SignForm() {
         console.error("Error checking login status:", error);
       }
     };
-    
+
     checkLoggedIn();
   }, []);
 
@@ -324,7 +336,7 @@ function SignForm() {
   const locales = [
     { code: "en", name: "English" },
     { code: "hi", name: "हिंदी" },
-    { code: "mr", name: "मराठी" }
+    { code: "mr", name: "मराठी" },
   ];
 
   const sortedLocales = useMemo(() => {
@@ -350,7 +362,9 @@ function SignForm() {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(isSignup ? { name, email, password } : { email, password }),
+        body: JSON.stringify(
+          isSignup ? { name, email, password } : { email, password }
+        ),
       });
 
       const contentType = res.headers.get("content-type") || "";
@@ -359,7 +373,7 @@ function SignForm() {
 
         if (res.ok) {
           setStatus("success");
-          
+
           if (isSignup) {
             showNotification(t("signup_success"), "success");
             setIsSignup(false);
@@ -418,26 +432,35 @@ function SignForm() {
             <div className="bus-icon">🚌</div>
             <div className="logo">{t("app_title")}</div>
             <div className="welcome-text">{t("welcome_back")}</div>
-            <div className="subtitle">{t("user_welcome")}{userData.name}!</div>
+            <div className="subtitle">
+              {t("user_welcome")}
+              {userData.name}!
+            </div>
           </div>
-          
+
           <div style={{ padding: "20px", textAlign: "center" }}>
             <p style={{ marginBottom: "20px", color: "#64748b" }}>
-              You are successfully logged in as {userData.name} ({userData.email})
+              You are successfully logged in as {userData.name} (
+              {userData.email})
             </p>
-            
-            <button 
-              className="login-btn" 
+
+            <button
+              className="login-btn"
               onClick={handleLogout}
               style={{ marginTop: "20px" }}
             >
               Logout
             </button>
-            
-            <button 
-              className="login-btn" 
-              onClick={() => window.location.href = "http://localhost:5173/admin"}
-              style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", marginTop: "10px" }}
+
+            <button
+              className="login-btn"
+              onClick={() =>
+                (window.location.href = "http://localhost:5173/admin")
+              }
+              style={{
+                background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                marginTop: "10px",
+              }}
             >
               Go to Admin Dashboard
             </button>
@@ -479,7 +502,9 @@ function SignForm() {
         <form className="login-form" onSubmit={handleFormSubmit}>
           {isSignup && (
             <div className="form-group">
-              <label className="form-label" htmlFor="name">{t("name_label")}</label>
+              <label className="form-label" htmlFor="name">
+                {t("name_label")}
+              </label>
               <div className="input-wrapper">
                 <input
                   type="text"
@@ -497,7 +522,9 @@ function SignForm() {
           )}
 
           <div className="form-group">
-            <label className="form-label" htmlFor="email">{t("email_label")}</label>
+            <label className="form-label" htmlFor="email">
+              {t("email_label")}
+            </label>
             <div className="input-wrapper">
               <input
                 type="email"
@@ -514,7 +541,9 @@ function SignForm() {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="password">{t("password_label")}</label>
+            <label className="form-label" htmlFor="password">
+              {t("password_label")}
+            </label>
             <div className="input-wrapper">
               <input
                 type={passwordType}
@@ -541,7 +570,9 @@ function SignForm() {
 
           <button
             type="submit"
-            className={`login-btn ${isLoading ? "loading" : ""} ${status === "success" ? "success" : ""}`}
+            className={`login-btn ${isLoading ? "loading" : ""} ${
+              status === "success" ? "success" : ""
+            }`}
             id="loginBtn"
             disabled={isLoading}
           >

@@ -1,6 +1,15 @@
 // src/pages/admin/DashboardHome.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { Bus, Users, AlertTriangle, TrendingUp, MapPin, AlertCircle, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  Bus,
+  Users,
+  AlertTriangle,
+  TrendingUp,
+  MapPin,
+  AlertCircle,
+  Clock,
+} from "lucide-react";
 import StatCard from "../../components/StatCard";
 import { db } from "../../lib/firebase";
 import {
@@ -14,13 +23,37 @@ import {
   getAggregateFromServer,
   sum,
 } from "firebase/firestore";
-
+function showNotification(message, type = "info") {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed; top: 20px; right: 20px; padding: 12px 20px;
+    background: ${
+      type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#4f46e5"
+    };
+    color: white; border-radius: 10px; font-weight: 600; z-index: 10000;
+    transform: translateX(400px); transition: transform 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  setTimeout(() => {
+    notification.style.transform = "translateX(0)";
+  }, 100);
+  setTimeout(() => {
+    notification.style.transform = "translateX(400px)";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
 function getStatusColorClass(status) {
   switch (status) {
-    case "ACTIVE": return "status-active";
-    case "MAINTENANCE": return "status-maintenance";
-    case "GHOST BUS": return "status-ghost";
-    default: return "";
+    case "ACTIVE":
+      return "status-active";
+    case "MAINTENANCE":
+      return "status-maintenance";
+    case "GHOST BUS":
+      return "status-ghost";
+    default:
+      return "";
   }
 }
 
@@ -46,7 +79,20 @@ export default function DashboardHome() {
   const [buses, setBuses] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [counts, setCounts] = useState({ total: 0, ghost: 0 });
+  const navigate = useNavigate();
   const [todayRevenue, setTodayRevenue] = useState(null); // null => loading, number => ₹
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    showNotification("Logged out successfully", "info");
+    navigate("/login");
+  };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   // Live buses
   useEffect(() => {
@@ -60,7 +106,11 @@ export default function DashboardHome() {
 
   // Live alerts (latest 10)
   useEffect(() => {
-    const q = query(collection(db, "alerts"), orderBy("createdAt", "desc"), limit(10));
+    const q = query(
+      collection(db, "alerts"),
+      orderBy("createdAt", "desc"),
+      limit(10)
+    );
     const unsub = onSnapshot(q, (snap) => {
       const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setAlerts(rows);
@@ -99,11 +149,33 @@ export default function DashboardHome() {
     const run = async () => {
       try {
         const now = new Date();
-        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-        const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+        const start = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          0,
+          0,
+          0,
+          0
+        );
+        const end = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + 1,
+          0,
+          0,
+          0,
+          0
+        );
         const base = collection(db, "payments"); // expects { amount: number, createdAt: Timestamp }
-        const q = query(base, where("createdAt", ">=", start), where("createdAt", "<", end));
-        const aggSnap = await getAggregateFromServer(q, { total: sum("amount") });
+        const q = query(
+          base,
+          where("createdAt", ">=", start),
+          where("createdAt", "<", end)
+        );
+        const aggSnap = await getAggregateFromServer(q, {
+          total: sum("amount"),
+        });
         if (!mounted) return;
         const val = aggSnap.data().total ?? 0;
         setTodayRevenue(Number(val));
@@ -123,7 +195,12 @@ export default function DashboardHome() {
 
   // Derived: active drivers (unique among ACTIVE buses)
   const activeDrivers = useMemo(() => {
-    const set = new Set(buses.filter((b) => b.status === "ACTIVE").map((b) => b.driver).filter(Boolean));
+    const set = new Set(
+      buses
+        .filter((b) => b.status === "ACTIVE")
+        .map((b) => b.driver)
+        .filter(Boolean)
+    );
     return set.size;
   }, [buses]);
 
@@ -145,7 +222,11 @@ export default function DashboardHome() {
   const currency = (n) => {
     if (n == null) return "—";
     try {
-      return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0,
+      }).format(n);
     } catch {
       return `₹${n}`;
     }
@@ -155,9 +236,21 @@ export default function DashboardHome() {
     <>
       <div className="stats-grid">
         <StatCard title="Total Buses" value={String(counts.total)} icon={Bus} />
-        <StatCard title="Active Drivers" value={String(activeDrivers)} icon={Users} />
-        <StatCard title="Ghost Buses" value={String(counts.ghost)} icon={AlertTriangle} />
-        <StatCard title="Today's Revenue" value={currency(todayRevenue)} icon={TrendingUp} />
+        <StatCard
+          title="Active Drivers"
+          value={String(activeDrivers)}
+          icon={Users}
+        />
+        <StatCard
+          title="Ghost Buses"
+          value={String(counts.ghost)}
+          icon={AlertTriangle}
+        />
+        <StatCard
+          title="Today's Revenue"
+          value={currency(todayRevenue)}
+          icon={TrendingUp}
+        />
       </div>
 
       <div className="live-status-card">
@@ -186,13 +279,21 @@ export default function DashboardHome() {
                   <td>{bus.route}</td>
                   <td>{bus.driver}</td>
                   <td>
-                    <span className={`status-pill ${getStatusColorClass(bus.status)}`}>{bus.status}</span>
+                    <span
+                      className={`status-pill ${getStatusColorClass(
+                        bus.status
+                      )}`}
+                    >
+                      {bus.status}
+                    </span>
                   </td>
                   <td>
                     <div className="occupancy-cell">
                       <div className="occupancy-bar-container">
                         <div
-                          className={`occupancy-bar ${getOccupancyColorClass(bus.occupancy)}`}
+                          className={`occupancy-bar ${getOccupancyColorClass(
+                            bus.occupancy
+                          )}`}
                           style={{ width: `${bus.occupancy}%` }}
                         />
                       </div>
@@ -204,7 +305,9 @@ export default function DashboardHome() {
               ))}
               {busRows.length === 0 && (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: "center", opacity: 0.7 }}>No buses yet</td>
+                  <td colSpan={6} style={{ textAlign: "center", opacity: 0.7 }}>
+                    No buses yet
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -222,7 +325,8 @@ export default function DashboardHome() {
         <div className="alerts-list">
           {alerts.map((alert) => {
             const ts = alert.createdAt?.toDate?.() || null;
-            const type = alert.type === "ghost" ? "dot-ghost" : "dot-maintenance";
+            const type =
+              alert.type === "ghost" ? "dot-ghost" : "dot-maintenance";
             return (
               <div key={alert.id} className="alert-item">
                 <div className={`alert-dot ${type}`} />
@@ -237,7 +341,9 @@ export default function DashboardHome() {
             );
           })}
           {alerts.length === 0 && (
-            <div className="alert-item" style={{ opacity: 0.7 }}>No alerts</div>
+            <div className="alert-item" style={{ opacity: 0.7 }}>
+              No alerts
+            </div>
           )}
         </div>
       </div>
