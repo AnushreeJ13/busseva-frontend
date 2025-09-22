@@ -1,15 +1,14 @@
-// src/lib/firebase.jsx
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, collection } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import {query, where, orderBy } from "firebase/firestore";
+import { query, where, orderBy } from "firebase/firestore";
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 function buildRoutesQuery(db, f) {
   const coll = collection(db, "routes");
   const clauses = [];
   if (f.start !== "ALL") clauses.push(where("start", "==", f.start));
   if (f.end !== "ALL") clauses.push(where("end", "==", f.end));
-  // Keep sorting stable; createdAt works well with newest-first lists.
   clauses.push(orderBy("createdAt", "desc"));
   return query(coll, ...clauses);
 }
@@ -46,16 +45,25 @@ const firebaseConfig = {
 };
 
 // 1) Initialize app first (handles HMR safely)
-export const app = getApps().length ? getApp() : initializeApp(firebaseConfig); // [OK]
+export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 // 2) Then create SDK instances from the initialized app
 export const db = getFirestore(app);     // Firestore instance
-export const storage = getStorage(app);  // Storage instance
+export const storage = getStorage(app);   // Storage instance
+export const functions = getFunctions(app); // Functions instance
 
-// 3) Optional collection refs
+// 3) Initialize emulators for local development
+if (window.location.hostname === "localhost") {
+  connectFunctionsEmulator(functions, "localhost", 5001);
+}
+
+// 4) Optional collection refs
 export const busesCol = collection(db, "buses");
 export const driversCol = collection(db, "drivers");
 export const routesCol = collection(db, "routes");
+
+// 5) Query builders
+export { buildRoutesQuery };
 
 // Important: Do NOT import anything here that imports from this file.
 // Keep this module dependency-free to avoid circular import ordering issues.
