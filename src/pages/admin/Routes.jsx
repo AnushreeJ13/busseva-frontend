@@ -88,7 +88,6 @@ async function osrmRoute(start, end) {
   };
 }
 
-
 // Route between two coords via OSRM -> { distanceKm, durationMin, polyline }
 async function osrmRoute(start, end) {
   const url = buildOsrmUrl(start, end);
