@@ -12,11 +12,11 @@ function LanguageSwitcher() {
     <div
       style={{
         position: "absolute",
-        top: "20px",
+        top: "29px",
         right: "20px",
         zIndex: 1000,
         background: "rgba(255, 255, 255, 0.9)",
-        padding: "8px",
+        padding: "4px",
         borderRadius: "10px",
         backdropFilter: "blur(10px)",
       }}
@@ -25,9 +25,9 @@ function LanguageSwitcher() {
         value={i18n.language}
         onChange={handleChange}
         style={{
-          padding: "6px 12px",
+          padding: "6px 8px",
           borderRadius: "6px",
-          border: "1px solid #ccc",
+         
           background: "white",
           cursor: "pointer",
           fontSize: "14px",

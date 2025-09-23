@@ -81,17 +81,7 @@ const BusSevaHomepage = () => {
       container: { maxWidth: "1200px", margin: "0 auto", padding: "0 20px" },
 
       // Navbar
-      nav: {
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        background: "white",
-        boxShadow: isScrolled ? "0 8px 24px rgba(0,0,0,0.12)" : "none",
-        padding: isScrolled ? "10px 0" : "18px 0",
-        transition: "all 0.3s ease",
-      },
+      
       navContent: {
         display: "flex",
         alignItems: "center",
@@ -100,37 +90,63 @@ const BusSevaHomepage = () => {
         margin: "0 auto",
         padding: "0 20px",
       },
-      logo: { display: "flex", alignItems: "center", gap: "10px" },
-      logoIcon: {
-        width: "44px",
-        height: "44px",
-        background: "linear-gradient(135deg,#2563eb,#1d4ed8)",
-        borderRadius: "10px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        boxShadow: "0 6px 16px rgba(37,99,235,0.35)",
-        animation: "logoFloat 3s ease-in-out infinite",
+      logo: { 
+        display: "flex", 
+        alignItems: "center", 
+        gap: "10px",
+        marginLeft: "-12px" // Add this to pull it more to the left
       },
+      // 1) styles.nav ko update karein (useMemo ke andar)
+nav: {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 1000,
+  background: "transparent",
+  height: "60px", // Reduced from previous value
+  boxShadow: isScrolled ? "0 8px 24px rgba(0,0,0,0.12)" : "none",
+  padding: isScrolled ? "5px 0" : "5px 0", // Reduced padding
+  transition: "all 0.3s ease",
+},
+logoIcon: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  background: "transparent",
+  padding: "4px",
+  marginRight: "8px",
+  marginTop: "-15px" // Added to move up
+},
+
+
       logoText: {
         fontSize: "24px",
         fontWeight: "800",
         color: "#1f2937",
         letterSpacing: "0.3px",
+        marginLeft: "-8px" // Add this to bring text closer to logo
       },
-      navLinks: {
-        display: isMobile ? "none" : "flex",
-        gap: "28px",
-        alignItems: "center",
-      },
-      navLink: {
-        color: "#374151",
-        textDecoration: "none",
-        cursor: "pointer",
-        position: "relative",
-        transition: "color 0.3s ease",
-      },
-
+// Removed invalid CSS block from JS object
+navLink: {
+  color: "#0f1280",
+  textDecoration: "none",
+  cursor: "pointer",
+  position: "relative",
+  transition: "all 0.2s ease",
+  display: "inline-block",
+  padding: "6px 10px",
+  borderRadius: "10px",
+  WebkitTapHighlightColor: "transparent",
+  "&:hover": {
+    color: "#2a2fc9",
+    transform: "translateY(-1px)",
+    textShadow: "0 2px 4px rgba(15, 18, 128, 0.2)"
+  },
+  "&:active": {
+    transform: "translateY(0)"
+  }
+},
       // Right side of navbar
       navbarRight: {
         display: "flex",
@@ -142,18 +158,31 @@ const BusSevaHomepage = () => {
         zIndex: 1500,
         overflow: "visible",
       },
-      languageSwitcher: { flexShrink: 0, minWidth: "100px" },
+     languageSwitcher: {
+  flexShrink: 0,
+  minWidth: "100px",
+  position: "absolute",
+  right: "20px",   // 👈 nav ke right edge se distance
+  top: "50%",      // 👈 vertical center
+  // perfect centering
+},
+
       adminBtn: {
-        background: "#2563eb",
-        color: "white",
-        padding: "10px 18px",
-        borderRadius: "10px",
-        border: "none",
-        cursor: "pointer",
-        fontWeight: 700,
-        transition: "transform 0.15s ease, box-shadow 0.2s ease",
-        boxShadow: "0 6px 14px rgba(37,99,235,0.35)",
-      },
+  background: "#2563eb",
+  color: "white",
+  padding: "8px 16px",
+  borderRadius: "10px",
+  border: "none",
+  cursor: "pointer",
+  fontWeight: 700,
+  transition: "transform 0.15s ease, box-shadow 0.2s ease",
+  boxShadow: "0 6px 14px rgba(37,99,235,0.35)",
+  marginTop: "-15px",
+  position: "relative",
+  left: "-12px", // adjust to -8px or -14px if needed
+},
+
+
       adminLoginBtn: { flexShrink: 0, padding: "8px 16px", fontSize: "1rem", whiteSpace: "nowrap" },
       mobileMenu: { background: "white", borderTop: "1px solid #e5e7eb", padding: "8px 16px" },
       mobileMenuItem: { display: "block", padding: "8px 0", color: "#374151", textDecoration: "none" },
@@ -350,7 +379,7 @@ processCardGreen: {
     featuresGrid: {
   display: "grid",
   gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0,1fr))",
-    background: "linear-gradient(135deg,#1a4ed8,#7e3aed)",
+    
   gap: "9px",
 },
 featureCard: {
@@ -530,7 +559,33 @@ featureCardGreen: {
         }
         @keyframes puff { 0% { transform: scale(0.6); opacity: 0.8 } 100% { transform: scale(1.6); opacity: 0 } }
         @keyframes marquee { 0% { transform: translateX(0) } 100% { transform: translateX(-50%) } }
+.navLink:hover,
+.navLink:focus {
+  color: #2a2fc9;
+  transform: translateY(-1px);
+  text-shadow: 0 2px 4px rgba(15, 18, 128, 0.2);
+}
 
+.navLink:active {
+  transform: translateY(0);
+}
+  .navLink {
+  color: #0f1280;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease, transform 0.2s ease, text-shadow 0.2s ease;
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 10px;
+  -webkit-tap-highlight-color: transparent;
+}.navLink.active {
+  background-color: #0f1280;
+  color: white;
+}.navLink:focus {
+  outline: 2px solid #0f1280;
+  outline-offset: 2px;
+}
         .hover-bump:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(2,6,23,0.15) !important; }
         .pressable:active { transform: translateY(1px) scale(0.98); }
         .pressable:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 10px 25px rgba(37,99,235,0.4) !important; }
@@ -624,64 +679,108 @@ featureCardGreen: {
 }
         @media (prefers-reduced-motion: reduce) {
           * { animation: none !important; transition: none !important; }
-        }
+        },
+        /* Premium gradient underline without layout shift */
+.navLink { position: relative; }
+
+.navLink::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 4px;
+  height: 2px;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease;
+  border-radius: 2px;
+}
+
+.navLink:hover::after,
+.navLink:focus::after {
+  transform: scaleX(1);
+}
+
       `}</style>
+{/* Navigation */}
+{/* Navigation */}
+<nav className="nav-glass" style={styles.nav}>
+  <div style={styles.navContent}>
+    <div style={styles.logo}>
+      {/* Logo image */}
+      <div style={styles.logoIcon}>
+        <img
+          src="/assets/logo.png"
+          alt="App Logo"
+          style={{
+            width: 100,
+            height: 100,
+            borderRadius: "50%",
+            objectFit: "contain",
+          }}
+        />
+      </div>
 
-          {/* Navigation */}
-          <nav className="nav-glass" style={styles.nav}>
-            <div style={styles.navContent}>
-              <div style={styles.logo}>
-                <div className="logo-animate" style={styles.logoIcon}>
-                  <Bus style={{ width: 24, height: 24, color: "white" }} />
-                </div>
-                <span style={styles.logoText}>
-                  <a href="#home" style={styles.navLink}>
-                    {t("app_name")}
-                  </a>
-                </span>
-              </div>
+      <span style={styles.logoText}>
+        <a href="#home" className="navLink" style={styles.navLink}>
+          {t("app_name")}
+        </a>
+      </span>
+    </div>
 
-              {!isMobile && (
-                <div style={styles.navLinks}>
-                  <a href="#home" style={styles.navLink}>{t("nav_home")}</a>
-                  <a href="#how-it-works" style={styles.navLink}>{t("nav_how_it_works")}</a>
-                  <a href="#features" style={styles.navLink}>{t("nav_features")}</a>
-                  <a href="#platforms" style={styles.navLink}>{t("nav_platforms")}</a>
-                </div>
-              )}
+    {/* Navigation Links */}
+    {!isMobile && (
+      <div style={styles.navLinks}>
+        <a href="#home" className="navLink" style={styles.navLink}>
+          {t("nav_home")}
+        </a>
+        <a href="#how-it-works" className="navLink" style={styles.navLink}>
+          {t("nav_how_it_works")}
+        </a>
+        <a href="#features" className="navLink" style={styles.navLink}>
+          {t("nav_features")}
+        </a>
+        <a href="#platforms" className="navLink" style={styles.navLink}>
+          {t("nav_platforms")}
+        </a>
+        <div style={{ zIndex: 2000 }}>
+          <LanguageSwitcher style={styles.languageSwitcher} />
+        </div>
+      </div>
+    )}
 
-              <div style={styles.navbarRight}>
-                <div style={{ position: "relative", zIndex: 2000 }}>
-                  <LanguageSwitcher style={styles.languageSwitcher} />
-                </div>
+    {/* Right Side Navbar */}
+    <div>
+      {!isMobile && (
+        <Link to="/login" className="pressable admin-login-btn" style={styles.adminBtn}>
+          {t("admin_login")}
+        </Link>
+      )}
 
-                {!isMobile && (
-                  <Link to="/login" className="pressable admin-login-btn" style={styles.adminBtn}>
-                    {t("admin_login")}
-                  </Link>
-                )}
+      {isMobile && (
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{ background: "none", border: "none", cursor: "pointer" }}
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      )}
+    </div>
+  </div>
 
-                {isMobile && (
-                  <button
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    style={{ background: "none", border: "none", cursor: "pointer" }}
-                  >
-                    {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                  </button>
-                )}
-              </div>
-            </div>
+  {/* Mobile Menu */}
+  {mobileMenuOpen && isMobile && (
+    <div style={styles.mobileMenu}>
+      <a href="#home" style={styles.mobileMenuItem}>{t("nav_home")}</a>
+      <a href="#how-it-works" style={styles.mobileMenuItem}>{t("nav_how_it_works")}</a>
+      <a href="#features" style={styles.mobileMenuItem}>{t("nav_features")}</a>
+      <a href="#platforms" style={styles.mobileMenuItem}>{t("nav_platforms")}</a>
+      <Link to="/login" style={styles.mobileMenuItem}>{t("admin_login")}</Link>
+    </div>
+  )}
+</nav>
 
-            {mobileMenuOpen && isMobile && (
-              <div style={styles.mobileMenu}>
-                <a href="#home" style={styles.mobileMenuItem}>{t("nav_home")}</a>
-                <a href="#how-it-works" style={styles.mobileMenuItem}>{t("nav_how_it_works")}</a>
-                <a href="#features" style={styles.mobileMenuItem}>{t("nav_features")}</a>
-                <a href="#platforms" style={styles.mobileMenuItem}>{t("nav_platforms")}</a>
-                <Link to="/login" style={styles.mobileMenuItem}>{t("admin_login")}</Link>
-              </div>
-            )}
-          </nav>
 
           {/* Hero */}
           <section id="home" style={styles.hero}>
@@ -901,7 +1000,7 @@ featureCardGreen: {
               </div>
 
           {/* Features */}
-          <section id="features" style={{ ...styles.section, ...styles.sectionGray }} className="features-section-bg">
+          <section id="features" style={{ ...styles.section, ...styles.sectionGray }}>
             <div style={styles.container}>
               <div style={styles.sectionHeader}>
                 <h2 style={styles.sectionTitle}>{t("features_title")}</h2>
