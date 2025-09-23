@@ -40,7 +40,6 @@ const busStopIcon = new L.Icon({
 
 // Free endpoints (no keys); be considerate of public usage limits
 const NOMINATIM_BASE = "https://nominatim.openstreetmap.org";
-const OSRM_BASE = "https://routing.openstreetmap.de/routed-car";
 
 // Geocode a place/city name -> { lat, lon, display_name }
 async function geocodeNominatim(query) {
@@ -64,19 +63,28 @@ async function reverseNominatim(lat, lon) {
   return { name, city };
 }
 
+// Build OSRM URL depending on environment (dev uses Vite proxy, prod uses serverless proxy)
+function buildOsrmUrl(start, end) {
+  const coords = `${start.lon},${start.lat};${end.lon},${end.lat}`;
+  if (import.meta.env.DEV) {
+    // Vite dev proxy forwards /route to https://router.project-osrm.org
+    return `/route/v1/driving/${coords}?overview=full&geometries=polyline&alternatives=false&steps=false`;
+  }
+  // Production: call Vercel Function proxy
+  return `/api/osrm?coords=${encodeURIComponent(coords)}`;
+}
+
 // Route between two coords via OSRM -> { distanceKm, durationMin, polyline }
 async function osrmRoute(start, end) {
-  // OSRM expects lon,lat order
-  const coords = `${start.lon},${start.lat};${end.lon},${end.lat}`;
-  const url = `${OSRM_BASE}/route/v1/driving/${coords}?overview=full&geometries=polyline&alternatives=false&steps=false`;
-  const res = await fetch(url);
+  const url = buildOsrmUrl(start, end);
+  const res = await fetch(url, { method: "GET" });
   if (!res.ok) throw new Error(`Routing failed: ${res.status}`);
   const json = await res.json();
-  if (!json?.routes?.[0]) throw new Error("No route found between the given locations");
-  const r = json.routes[0];
-  const distanceKm = Math.round((r.distance || 0) / 1000);
-  const durationMin = Math.round((r.duration || 0) / 60);
-  const polyline = r.geometry; // encoded polyline5
+  const route = json?.routes?.[0];
+  if (!route) throw new Error("No route found between the given locations");
+  const distanceKm = Math.round((route.distance || 0) / 1000);
+  const durationMin = Math.round((route.duration || 0) / 60);
+  const polyline = route.geometry; // encoded polyline5
   return { distanceKm, durationMin, polyline };
 }
 
@@ -154,7 +162,6 @@ export default function Routes() {
   const [mapMarkers, setMapMarkers] = useState([]);
   const firstInputRef = useRef(null);
 
-  // Helper for timestamp conversion
   const tsToLocal = (t) => {
     try {
       const d = t?.toDate?.();
@@ -164,7 +171,6 @@ export default function Routes() {
     }
   };
 
-  // Live routes subscription
   useEffect(() => {
     firstInputRef.current?.focus();
     const qRef = query(collection(db, "routes"), orderBy("createdAt", "desc"));
@@ -174,7 +180,6 @@ export default function Routes() {
     return () => unsub();
   }, []);
 
-  // Total count refresh
   useEffect(() => {
     let mounted = true;
     const refresh = async () => {
@@ -191,7 +196,6 @@ export default function Routes() {
     return () => { mounted = false; };
   }, []);
 
-  // Update map markers when stops change
   useEffect(() => {
     if (form.stops.length > 0) {
       const markers = form.stops.map(stop => ({
@@ -202,8 +206,6 @@ export default function Routes() {
         stopOrder: stop.stopOrder
       }));
       setMapMarkers(markers);
-
-      // Center map on the route
       if (markers.length > 0) {
         const lats = markers.map(m => m.position[0]);
         const lngs = markers.map(m => m.position[1]);
@@ -215,7 +217,6 @@ export default function Routes() {
     }
   }, [form.stops]);
 
-  // Suggest stops using OSM/OSRM
   const suggestStops = async () => {
     if (!form.start || !form.end) {
       toast.error('Please enter both start and end locations');
@@ -224,26 +225,21 @@ export default function Routes() {
     try {
       setLoadingSuggest(true);
 
-      // Geocode start/end via Nominatim
       const startGeo = await geocodeNominatim(`${form.start}, India`);
       const endGeo   = await geocodeNominatim(`${form.end}, India`);
 
-      // Clean display names for UI fields
       setForm(prev => ({
         ...prev,
         start: startGeo.display_name.split(",")[0],
         end:   endGeo.display_name.split(",")[0],
       }));
 
-      // Route via OSRM
       const routeInfo = await osrmRoute(startGeo, endGeo);
       const decoded = decodePolyline(routeInfo.polyline);
 
-      // Decide intermediate stops (~50 km apart, min 3)
       const numStops = Math.max(3, Math.floor(routeInfo.distanceKm / 50));
       const mids = pickStopsAlongRoute(decoded, numStops);
 
-      // Reverse-geocode mid stops for names
       const midStops = [];
       for (let i = 0; i < mids.length; i++) {
         const p = mids[i];
@@ -269,7 +265,6 @@ export default function Routes() {
         }
       }
 
-      // Build full stop list
       const stops = [
         {
           id: "stop_1",
@@ -302,7 +297,6 @@ export default function Routes() {
         estimatedDuration,
       }));
 
-      // Map markers
       const markers = stops.map(s => ({
         position: [s.coordinates.latitude, s.coordinates.longitude],
         name: s.name,
@@ -312,7 +306,6 @@ export default function Routes() {
       }));
       setMapMarkers(markers);
 
-      // Center map
       if (decoded.length > 0) {
         const lats = decoded.map(p => p[0]);
         const lons = decoded.map(p => p[1]);
@@ -331,14 +324,12 @@ export default function Routes() {
     }
   };
 
-  // Submit new route
   const submit = async (e) => {
     e.preventDefault();
     if (!form.name.trim() || !form.start.trim() || !form.end.trim()) {
       toast.error('Please fill all required fields');
       return;
     }
-
     try {
       const stopsPayload = [...(form.stops || [])]
         .sort((a, b) => (a.stopOrder || 0) - (b.stopOrder || 0))
@@ -372,7 +363,6 @@ export default function Routes() {
 
       toast.success('Route added successfully!');
 
-      // Reset form
       setForm({
         name: "",
         start: "",
@@ -385,17 +375,14 @@ export default function Routes() {
         totalDistance: 0,
       });
 
-      // Reset map
       setRoutePolyline([]);
       setMapMarkers([]);
-
     } catch (error) {
       console.error('Error adding route:', error);
       toast.error('Failed to add route');
     }
   };
 
-  // Auto-fill stops for existing route using OSM/OSRM
   const autofillRouteStops = async (route) => {
     if (!route?.start || !route?.end) { toast.error("Invalid route data"); return; }
     setSavingRouteId(route.id);
@@ -489,7 +476,6 @@ export default function Routes() {
     [routes]
   );
 
-  // Client-side filtering
   const filtered = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
     return routes.filter((r) => {
@@ -501,7 +487,6 @@ export default function Routes() {
     });
   }, [routes, filters]);
 
-  // Sorting
   const sorted = useMemo(() => {
     const arr = [...filtered];
     if (filters.sortBy === "name_asc") {
@@ -511,11 +496,9 @@ export default function Routes() {
     } else if (filters.sortBy === "end_asc") {
       arr.sort((a, b) => String(a.end ?? "").localeCompare(String(b.end ?? "")));
     }
-    // createdAt_desc is already applied by the live query
     return arr;
   }, [filtered, filters.sortBy]);
 
-  // CSV export (respects filters + sort)
   const exportCSV = () => {
     const header = ["Route", "Start", "End", "DistanceKm", "Duration", "Stops"];
     const lines = sorted.map((r) => [
@@ -656,12 +639,10 @@ export default function Routes() {
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
 
-                {/* Route Polyline */}
                 {routePolyline.length > 0 && (
                   <Polyline positions={routePolyline} color="blue" weight={4} opacity={0.7} />
                 )}
 
-                {/* Stops Markers */}
                 {mapMarkers.map((marker, index) => (
                   <Marker
                     key={index}
@@ -698,7 +679,7 @@ export default function Routes() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[...form.stops].sort((a,b) => (a.stopOrder||0)-(b.stopOrder||0)).map((s, idx, arr) => {
+                    {[...form.stops].sort((a,b) => (a.stopOrder||0)-(b.stopOrder||0)).map((s) => {
                       const baseFare = form.fare?.baseFare ?? 0;
                       const perKmRate = form.fare?.perKmRate ?? 0;
                       return (

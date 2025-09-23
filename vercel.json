@@ -1,5 +1,8 @@
 {
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
+  ],
+  "routes": [
+    { "src": "/api/osrm", "dest": "/api/osrm.js" }
   ]
 }
