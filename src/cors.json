@@ -1,11 +1,12 @@
-
-[
-  {
-    "origin": ["http://localhost:5173", "https://busseva.onrender.com","https://busseva.vercel.app"],
-    "method": ["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"],
-    "responseHeader": ["Content-Type", "Authorization", "x-goog-meta-*", "x-goog-resumable"],
-    "maxAgeSeconds": 3600
-  }
-]
-
-
+{
+  "origin": [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://busseva.vercel.app",
+    "https://busseva.onrender.com"
+  ],
+  "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  "allowedHeaders": ["Content-Type", "Authorization"],
+  "credentials": true,
+  "maxAge": 3600
+}
