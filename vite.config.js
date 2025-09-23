@@ -1,15 +1,7 @@
-// vite.config.js
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
+// https://vite.dev/config/
 export default defineConfig({
-  server: {
-    proxy: {
-      '/route': {
-        target: 'https://router.project-osrm.org',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (p) => p, // keep /route/v1/driving/... as-is
-      },
-    },
-  },
-});
+  plugins: [react()],
+})
