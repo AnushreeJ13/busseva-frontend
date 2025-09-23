@@ -88,19 +88,6 @@ async function osrmRoute(start, end) {
   };
 }
 
-// Route between two coords via OSRM -> { distanceKm, durationMin, polyline }
-async function osrmRoute(start, end) {
-  const url = buildOsrmUrl(start, end);
-  const res = await fetch(url, { method: "GET" });
-  if (!res.ok) throw new Error(`Routing failed: ${res.status}`);
-  const json = await res.json();
-  const route = json?.routes?.[0];
-  if (!route) throw new Error("No route found between the given locations");
-  const distanceKm = Math.round((route.distance || 0) / 1000);
-  const durationMin = Math.round((route.duration || 0) / 60);
-  const polyline = route.geometry; // encoded polyline5
-  return { distanceKm, durationMin, polyline };
-}
 
 // Decode polyline5 to [lat, lon] pairs
 function decodePolyline(encoded) {
