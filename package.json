@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "firebase": "^12.3.0",
+    "framer-motion": "^12.23.18",
     "i18next": "^25.5.2",
     "i18next-browser-languagedetector": "^8.2.0",
     "leaflet": "^1.9.4",
@@ -21,6 +22,7 @@
     "react-i18next": "^15.7.3",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.9.1",
+    "styled-components": "^6.1.19",
     "web-vitals": "^5.1.0"
   },
   "devDependencies": {

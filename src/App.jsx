@@ -1,9 +1,8 @@
-import "./App.css";
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./components/LanguageSwitcher";
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
 
 import LoadingPage from "./loading";
 import {
@@ -28,38 +27,27 @@ import {
 
 const BusSevaHomepage = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 600);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const { t } = useTranslation();
+
   const [showLogin, setShowLogin] = useState(false);
-
   const [isLoading, setIsLoading] = useState(true);
-
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [stats, setStats] = useState({ buses: 0, cities: 0, travelers: 0 });
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000); // Simulated loading delay
 
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 3000);
     return () => clearTimeout(timer);
   }, []);
+
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Handle responsive breakpoint reactively
+  // Responsive breakpoint
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
     const listener = (e) => setIsMobile(e.matches);
@@ -70,10 +58,9 @@ const BusSevaHomepage = () => {
 
   // Animated counters
   useEffect(() => {
-    const targets = { buses: 500, cities: 50, travelers: 1000 }; // 1M shown as 1000k
+    const targets = { buses: 500, cities: 50, travelers: 1000 };
     const duration = 1200;
     const start = performance.now();
-
     let raf = 0;
     const tick = (t) => {
       const p = Math.min(1, (t - start) / duration);
@@ -92,6 +79,8 @@ const BusSevaHomepage = () => {
     () => ({
       page: { minHeight: "100vh", background: "white" },
       container: { maxWidth: "1200px", margin: "0 auto", padding: "0 20px" },
+
+      // Navbar
       nav: {
         position: "fixed",
         top: 0,
@@ -121,6 +110,7 @@ const BusSevaHomepage = () => {
         alignItems: "center",
         justifyContent: "center",
         boxShadow: "0 6px 16px rgba(37,99,235,0.35)",
+        animation: "logoFloat 3s ease-in-out infinite",
       },
       logoText: {
         fontSize: "24px",
@@ -138,7 +128,21 @@ const BusSevaHomepage = () => {
         textDecoration: "none",
         cursor: "pointer",
         position: "relative",
+        transition: "color 0.3s ease",
       },
+
+      // Right side of navbar
+      navbarRight: {
+        display: "flex",
+        alignItems: "center",
+        gap: "16px",
+        flexWrap: "nowrap",
+        whiteSpace: "nowrap",
+        position: "relative",
+        zIndex: 1500,
+        overflow: "visible",
+      },
+      languageSwitcher: { flexShrink: 0, minWidth: "100px" },
       adminBtn: {
         background: "#2563eb",
         color: "white",
@@ -150,12 +154,20 @@ const BusSevaHomepage = () => {
         transition: "transform 0.15s ease, box-shadow 0.2s ease",
         boxShadow: "0 6px 14px rgba(37,99,235,0.35)",
       },
+      adminLoginBtn: { flexShrink: 0, padding: "8px 16px", fontSize: "1rem", whiteSpace: "nowrap" },
+      mobileMenu: { background: "white", borderTop: "1px solid #e5e7eb", padding: "8px 16px" },
+      mobileMenuItem: { display: "block", padding: "8px 0", color: "#374151", textDecoration: "none" },
+
+      // Hero
       hero: {
         position: "relative",
         overflow: "hidden",
         paddingTop: "120px",
         paddingBottom: "80px",
-        background: "linear-gradient(135deg, #eef2ff 0%, #e0f2fe 100%)",
+        background:
+          "linear-gradient(120deg, #fef2ff 0%, #e0f2fe 25%, #f5f3ff 50%, #ecfeff 75%, #fff7ed 100%)",
+        backgroundSize: "300% 300%",
+        animation: "gradientPan 18s ease-in-out infinite, slideInUp 1s ease-out",
         textAlign: "center",
       },
       heroTitle: {
@@ -165,6 +177,7 @@ const BusSevaHomepage = () => {
         marginBottom: "16px",
         lineHeight: 1.15,
         letterSpacing: "-0.5px",
+        animation: "slideInUp 1s ease-out",
       },
       heroTitleBlue: {
         display: "block",
@@ -172,7 +185,7 @@ const BusSevaHomepage = () => {
         WebkitBackgroundClip: "text",
         backgroundClip: "text",
         color: "transparent",
-        animation: "gradientShift 10s ease infinite",
+        animation: "gradientShift 4s ease infinite, bounceInDelay 1.2s ease-out",
       },
       heroSubtitle: {
         fontSize: "18px",
@@ -180,7 +193,10 @@ const BusSevaHomepage = () => {
         marginBottom: "36px",
         maxWidth: "780px",
         margin: "0 auto 36px",
+        animation: "fadeInUp 1s ease-out 0.3s both",
       },
+
+      // Search box
       searchBox: {
         position: "relative",
         maxWidth: "1000px",
@@ -191,6 +207,8 @@ const BusSevaHomepage = () => {
         padding: isMobile ? "18px" : "28px",
         border: "1px solid rgba(15,23,42,0.06)",
         backdropFilter: "blur(6px)",
+        animation: "slideInUp 1s ease-out 0.6s both",
+        zIndex: 10,
       },
       searchGrid: {
         display: "grid",
@@ -199,12 +217,7 @@ const BusSevaHomepage = () => {
         alignItems: "end",
       },
       inputGroup: { display: "flex", flexDirection: "column", gap: "8px" },
-      label: {
-        fontSize: "13px",
-        fontWeight: 700,
-        color: "#0f172a",
-        letterSpacing: "0.2px",
-      },
+      label: { fontSize: "13px", fontWeight: 700, color: "#0f172a", letterSpacing: "0.2px" },
       inputWrapper: { position: "relative" },
       input: {
         width: "100%",
@@ -216,7 +229,7 @@ const BusSevaHomepage = () => {
         borderRadius: "10px",
         fontSize: "16px",
         outline: "none",
-        transition: "box-shadow 0.2s ease, border-color 0.2s ease",
+        transition: "all 0.3s ease",
       },
       inputIcon: {
         position: "absolute",
@@ -225,6 +238,7 @@ const BusSevaHomepage = () => {
         width: "20px",
         height: "20px",
         color: "#94a3b8",
+        transition: "color 0.3s ease",
       },
       searchBtn: {
         background: "linear-gradient(135deg,#2563eb,#1d4ed8)",
@@ -237,13 +251,35 @@ const BusSevaHomepage = () => {
         cursor: "pointer",
         transition: "transform 0.12s ease, box-shadow 0.2s ease",
         boxShadow: "0 12px 24px rgba(37,99,235,0.35)",
+        animation: "pulseButton 2s ease-in-out infinite",
       },
+
+      // NEW: Video wrap and element for perfect alignment
+      videoWrap: {
+        maxWidth: isMobile ? "100%" : "1160px",
+        margin: "28px auto 0",
+        aspectRatio: "16 / 9",
+        borderRadius: "16px",
+        overflow: "hidden",
+        boxShadow: "0 20px 40px rgba(2,6,23,0.12)",
+        background: "#000",
+      },
+      videoEl: {
+        width: "100%",
+        height: "100%",
+        display: "block",
+        objectFit: "cover",
+        objectPosition: "center",
+      },
+
+      // Stats grid
       statsGrid: {
         display: "grid",
         gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
         gap: "28px",
         maxWidth: "860px",
         margin: "0 auto",
+        animation: "fadeInUp 1s ease-out 0.9s both",
       },
       statItem: {
         textAlign: "center",
@@ -251,60 +287,47 @@ const BusSevaHomepage = () => {
         padding: "18px",
         borderRadius: "14px",
         boxShadow: "0 10px 24px rgba(2,6,23,0.08)",
+        transition: "transform 0.3s ease",
       },
-      statNumber: {
-        fontSize: "2rem",
-        fontWeight: 900,
-        color: "#0f172a",
-        marginBottom: "6px",
-      },
-      statSuffix: {
-        fontSize: "1rem",
-        fontWeight: 800,
-        color: "#2563eb",
-        marginLeft: 4,
-      },
+      statNumber: { fontSize: "2rem", fontWeight: 900, color: "#0f172a", marginBottom: "6px" },
+      statSuffix: { fontSize: "1rem", fontWeight: 800, color: "#2563eb", marginLeft: 4 },
       statLabel: { color: "#475569", fontWeight: 600 },
+
+      // Sections
       section: { padding: "80px 0" },
       sectionWhite: { background: "white" },
       sectionGray: { background: "#f8fafc" },
       sectionHeader: { textAlign: "center", marginBottom: "56px" },
-      sectionTitle: {
-        fontSize: "2.3rem",
-        fontWeight: 900,
-        color: "#0f172a",
-        marginBottom: "14px",
-      },
-      sectionSubtitle: {
-        fontSize: "18px",
-        color: "#475569",
-        maxWidth: "780px",
-        margin: "0 auto",
-      },
+      sectionTitle: { fontSize: "2.3rem", fontWeight: 900, color: "#0f172a", marginBottom: "14px" },
+      sectionSubtitle: { fontSize: "18px", color: "#475569", maxWidth: "780px", margin: "0 auto" },
+
+      // How it works and features/platforms (basic layout)
       howItWorksGrid: {
         display: "grid",
         gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0,1fr))",
         gap: "36px",
       },
-      processCard: {
-        borderRadius: "18px",
-        padding: "28px",
-        border: "1px solid rgba(2,6,23,0.06)",
-        boxShadow: "0 14px 28px rgba(2,6,23,0.08)",
-      },
-      processCardBlue: { background: "#eff6ff" },
-      processCardGreen: { background: "#f0fdf4" },
-      processHeader: {
-        display: "flex",
-        alignItems: "center",
-        marginBottom: "18px",
-      },
-      processTitle: {
-        fontSize: "22px",
-        fontWeight: 800,
-        color: "#0f172a",
-        marginLeft: "12px",
-      },
+     processCard: {
+  borderRadius: "18px",
+  padding: "28px",
+  border: "1px solid rgba(2,6,23,0.06)",
+  boxShadow: "0 14px 28px rgba(2,6,23,0.08)",
+  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+  position: "relative", // Added for gradients
+  overflow: "hidden", // Prevents gradients from overflowing
+},
+processCardBlue: { 
+  background: "white", 
+  borderTop: "6px solid #2563eb",
+  boxShadow: "0 14px 28px rgba(37,99,235,0.15)",
+},
+processCardGreen: {
+  background: "white", 
+  borderTop: "6px solid #16a34a",
+  boxShadow: "0 14px 28px rgba(22,163,74,0.15)",
+},
+      processHeader: { display: "flex", alignItems: "center", marginBottom: "18px" },
+      processTitle: { fontSize: "22px", fontWeight: 800, color: "#0f172a", marginLeft: "12px" },
       processSteps: { display: "flex", flexDirection: "column", gap: "18px" },
       processStep: { display: "flex", alignItems: "flex-start", gap: "16px" },
       stepNumber: {
@@ -323,27 +346,34 @@ const BusSevaHomepage = () => {
       stepNumberGreen: { background: "#16a34a" },
       stepTitle: { fontWeight: 800, color: "#0f172a", marginBottom: "6px" },
       stepDescription: { color: "#334155", lineHeight: 1.6 },
-      featuresGrid: {
-        display: "grid",
-        gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0,1fr))",
-        gap: "24px",
-      },
-      featureCard: {
-        background: "white",
-        borderRadius: "14px",
-        padding: "22px",
-        boxShadow: "0 12px 28px rgba(2,6,23,0.08)",
-        border: "1px solid rgba(2,6,23,0.06)",
-        transition: "transform 0.15s ease, box-shadow 0.2s ease",
-      },
+
+    featuresGrid: {
+  display: "grid",
+  gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0,1fr))",
+    background: "linear-gradient(135deg,#1a4ed8,#7e3aed)",
+  gap: "9px",
+},
+featureCard: {
+  borderRadius: "14px",
+  padding: "22px",
+  boxShadow: "0 12px 28px rgba(2,6,23,0.08)",
+  border: "1px solid rgba(2,6,23,0.06)",
+  transition: "all 0.3s ease",
+  background: "white",
+},
+// New color variants for each card
+featureCardBlue: {
+  background: "#eff6ff",
+  boxShadow: "0 12px 28px rgba(37,99,235,0.15)",
+},
+featureCardGreen: {
+  background: "#f0fdf4",
+  boxShadow: "0 12px 28px rgba(22,163,74,0.15)",
+},
       featureIcon: { width: "32px", height: "32px", marginBottom: "14px" },
-      featureTitle: {
-        fontSize: "20px",
-        fontWeight: 900,
-        color: "#0f172a",
-        marginBottom: "10px",
-      },
+      featureTitle: { fontSize: "20px", fontWeight: 900, color: "#0f172a", marginBottom: "10px" },
       featureDescription: { color: "#334155", lineHeight: 1.6 },
+
       platformsGrid: {
         display: "grid",
         gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0,1fr))",
@@ -355,27 +385,16 @@ const BusSevaHomepage = () => {
         color: "white",
         position: "relative",
         overflow: "hidden",
+        transition: "transform 0.3s ease, box-shadow 0.3s ease",
       },
-      platformCardBlue: {
-        background: "linear-gradient(135deg,#2563eb,#1d4ed8)",
-      },
-      platformCardGreen: {
-        background: "linear-gradient(135deg,#16a34a,#059669)",
-      },
-      platformCardPurple: {
-        background: "linear-gradient(135deg,#7c3aed,#6d28d9)",
-      },
-      platformTitle: {
-        fontSize: "22px",
-        fontWeight: 900,
-        marginBottom: "14px",
-      },
-      platformFeatures: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-      },
+      platformCardBlue: { background: "linear-gradient(135deg,#2563eb,#1d4ed8)" },
+      platformCardGreen: { background: "linear-gradient(135deg,#16a34a,#059669)" },
+      platformCardPurple: { background: "linear-gradient(135deg,#7c3aed,#6d28d9)" },
+      platformTitle: { fontSize: "22px", fontWeight: 900, marginBottom: "14px" },
+      platformFeatures: { display: "flex", flexDirection: "column", gap: "10px" },
       platformFeature: { display: "flex", alignItems: "center", gap: "8px" },
+
+      // CTA
       cta: {
         position: "relative",
         padding: "80px 0",
@@ -385,13 +404,7 @@ const BusSevaHomepage = () => {
         overflow: "hidden",
       },
       ctaTitle: { fontSize: "2.3rem", fontWeight: 900, marginBottom: "16px" },
-      ctaSubtitle: {
-        fontSize: "18px",
-        marginBottom: "24px",
-        maxWidth: "780px",
-        margin: "0 auto 24px",
-        opacity: 0.95,
-      },
+      ctaSubtitle: { fontSize: "18px", marginBottom: "24px", maxWidth: "780px", margin: "0 auto 24px" },
       ctaButtons: {
         display: "flex",
         flexDirection: isMobile ? "column" : "row",
@@ -409,27 +422,11 @@ const BusSevaHomepage = () => {
         fontWeight: 800,
         cursor: "pointer",
         boxShadow: "0 14px 28px rgba(255,255,255,0.25)",
-        animation: "pulseGlow 3s ease-in-out infinite",
-      },
-      mobileMenu: {
-        background: "white",
-        borderTop: "1px solid #e5e7eb",
-        padding: "8px 16px",
-      },
-      mobileMenuItem: {
-        display: "block",
-        padding: "8px 0",
-        color: "#374151",
-        textDecoration: "none",
+        transition: "transform 0.2s ease",
       },
 
-      // Hero animation layers
-      skyLayer: {
-        position: "absolute",
-        inset: 0,
-        pointerEvents: "none",
-        overflow: "hidden",
-      },
+      // Decorative sky/road layers
+      skyLayer: { position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" },
       cloud: {
         position: "absolute",
         top: "15%",
@@ -482,34 +479,13 @@ const BusSevaHomepage = () => {
         pointerEvents: "none",
         animation: "busDrive 9s cubic-bezier(.37,.01,.16,1) infinite",
       },
-      cityMarqueeWrap: {
-        marginTop: 12,
-        overflow: "hidden",
-        whiteSpace: "nowrap",
-      },
+      cityMarqueeWrap: { marginTop: 12, overflow: "hidden", whiteSpace: "nowrap" },
       cityMarquee: {
         display: "inline-block",
         padding: "6px 0",
         animation: "marquee 18s linear infinite",
         color: "#334155",
         fontWeight: 700,
-      },
-      navbarRight: {
-        display: "flex",
-        alignItems: "center",
-        gap: "16px",
-        flexWrap: "nowrap",
-        whiteSpace: "nowrap",
-      },
-      languageSwitcher: {
-        flexShrink: 0,
-        minWidth: "100px",
-      },
-      adminLoginBtn: {
-        flexShrink: 0,
-        padding: "8px 16px",
-        fontSize: "1rem",
-        whiteSpace: "nowrap",
       },
     }),
     [isScrolled, isMobile]
@@ -530,21 +506,21 @@ const BusSevaHomepage = () => {
 
   return (
     <>
-     <Toaster position="top-right" />
+      <Toaster position="top-right" />
       {isLoading ? (
-        <LoadingPage /> // LoadingPage component dikhega jab isLoading === true
+        <LoadingPage />
       ) : (
         <div style={styles.page}>
           <style>{`
-        @keyframes gradientShift {
-          0% { filter: hue-rotate(0deg); }
-          50% { filter: hue-rotate(40deg); }
-          100% { filter: hue-rotate(0deg); }
-        }
-        @keyframes cloudDrift {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(140%); }
-        }
+        /* LIGHT animated background pan for hero */
+        @keyframes gradientPan { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes gradientShift { 0% { filter: hue-rotate(0deg); } 50% { filter: hue-rotate(40deg); } 100% { filter: hue-rotate(0deg); } }
+        @keyframes logoFloat { 0%, 100% { transform: translateY(0px) rotate(0deg); } 33% { transform: translateY(-3px) rotate(1deg); } 66% { transform: translateY(-1px) rotate(-1deg); } }
+        @keyframes slideInUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes bounceInDelay { 0% { opacity: 0; transform: scale(0.3) translateY(100px); } 60% { transform: scale(1.05); } 80% { transform: scale(0.95); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes pulseButton { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        @keyframes cloudDrift { 0% { transform: translateX(0); } 100% { transform: translateX(140%); } }
         @keyframes busDrive {
           0% { transform: translateX(-15%) translateY(0) }
           45% { transform: translateX(40%) translateY(-3px) }
@@ -552,34 +528,110 @@ const BusSevaHomepage = () => {
           95% { transform: translateX(115%) translateY(-2px) }
           100% { transform: translateX(130%) translateY(0) }
         }
-        @keyframes tireSpin {
-          to { transform: rotate(360deg) }
+        @keyframes puff { 0% { transform: scale(0.6); opacity: 0.8 } 100% { transform: scale(1.6); opacity: 0 } }
+        @keyframes marquee { 0% { transform: translateX(0) } 100% { transform: translateX(-50%) } }
+
+        .hover-bump:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(2,6,23,0.15) !important; }
+        .pressable:active { transform: translateY(1px) scale(0.98); }
+        .pressable:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 10px 25px rgba(37,99,235,0.4) !important; }
+
+        .input-focus:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.2); transform: scale(1.02); }
+        .nav-link:hover { color: #2563eb !important; transform: translateY(-2px); }
+
+        .nav-glass { background: rgba(255, 255, 255, 0.8) !important; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+        .logo-animate { position: relative; overflow: hidden; }
+        .logo-animate::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: translateX(-100%); animation: shimmer 3s infinite; }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+        .gradient-text {
+          background: linear-gradient(90deg, #2563eb, #7c3aed, #2563eb);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: gradientMove 8s linear infinite;
         }
-        @keyframes puff {
-          0% { transform: scale(0.6); opacity: 0.8 }
-          100% { transform: scale(1.6); opacity: 0 }
-        }
-        @keyframes marquee {
-          0% { transform: translateX(0) }
-          100% { transform: translateX(-50%) }
-        }
-        @keyframes pulseGlow {
-          0%, 100% { box-shadow: 0 0 0 rgba(255,255,255,0.0) }
-          50% { box-shadow: 0 0 24px rgba(255,255,255,0.35) }
-        }
+        @keyframes gradientMove { to { background-position: 200% center; } }
+            /* Add this to your <style> block */
+@keyframes waveFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.how-it-works-section-bg {
+  background: linear-gradient(90deg, #e0f2fe, #e5e7eb, #e0f2fe); /* Soft blue-gray gradient */
+  background-size: 200% 100%;
+  animation: waveFlow 25s linear infinite; /* Slow, continuous flow */
+  position: relative;
+  overflow: hidden; /* To contain pseudo-elements */
+}
+
+/* Add a subtle overlay texture or sparkle for extra depth */
+.how-it-works-section-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: sparkleOverlay 15s infinite alternate;
+  pointer-events: none;
+}
+  /* Add this to your <style> block */
+@keyframes floatShapes {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+  25% { transform: translate(50px, -20px) scale(1.05); opacity: 0.9; }
+  50% { transform: translate(0, 30px) scale(1); opacity: 0.8; }
+  75% { transform: translate(-40px, -10px) scale(0.95); opacity: 0.7; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+}
+
+.features-section-bg {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%); /* Soft green-blue gradient */
+  position: relative;
+  overflow: hidden;
+}
+
+.features-section-bg::before,
+.features-section-bg::after {
+  content: '';
+  position: absolute;
+  background: rgba(var(--color-dynamic-light), 0.2); /* Use a variable for dynamic color */
+  border-radius: 50%;
+  filter: blur(80px); /* Soft blur effect */
+  animation: floatShapes 20s infinite ease-in-out;
+  pointer-events: none;
+}
+
+.features-section-bg::before {
+  width: 250px;
+  height: 250px;
+  top: 10%;
+  left: -5%;
+  --color-dynamic-light: 37, 99, 235; /* Blue hue */
+}
+
+.features-section-bg::after {
+  width: 180px;
+  height: 180px;
+  bottom: 15%;
+  right: -8%;
+  animation-delay: 5s; /* Stagger animation */
+  --color-dynamic-light: 22, 197, 94; /* Green hue */
+}
+@keyframes sparkleOverlay {
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 0.5; }
+}
         @media (prefers-reduced-motion: reduce) {
           * { animation: none !important; transition: none !important; }
         }
-        .hover-bump:hover { transform: translateY(-3px); box-shadow: 0 16px 30px rgba(2,6,23,0.12) !important; }
-        .pressable:active { transform: translateY(1px) scale(0.99); }
-        .input-focus:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
       `}</style>
 
           {/* Navigation */}
-          <nav style={styles.nav}>
+          <nav className="nav-glass" style={styles.nav}>
             <div style={styles.navContent}>
               <div style={styles.logo}>
-                <div style={styles.logoIcon}>
+                <div className="logo-animate" style={styles.logoIcon}>
                   <Bus style={{ width: 24, height: 24, color: "white" }} />
                 </div>
                 <span style={styles.logoText}>
@@ -591,38 +643,28 @@ const BusSevaHomepage = () => {
 
               {!isMobile && (
                 <div style={styles.navLinks}>
-                  <a href="#home" style={styles.navLink}>
-                    {t("nav_home")}
-                  </a>
-                  <a href="#how-it-works" style={styles.navLink}>
-                    {t("nav_how_it_works")}
-                  </a>
-                  <a href="#features" style={styles.navLink}>
-                    {t("nav_features")}
-                  </a>
-                  <a href="#platforms" style={styles.navLink}>
-                    {t("nav_platforms")}
-                  </a>
+                  <a href="#home" style={styles.navLink}>{t("nav_home")}</a>
+                  <a href="#how-it-works" style={styles.navLink}>{t("nav_how_it_works")}</a>
+                  <a href="#features" style={styles.navLink}>{t("nav_features")}</a>
+                  <a href="#platforms" style={styles.navLink}>{t("nav_platforms")}</a>
                 </div>
               )}
+
               <div style={styles.navbarRight}>
-                <LanguageSwitcher style={styles.languageSwitcher} />{" "}
-                {/* Add this line */}
-                <Link
-                  to="/login"
-                  className="pressable  adminBtn admin-login-btn"
-                  style={{ ...styles.adminLoginBtn, ...styles.adminBtn }}
-                >
-                  {t("admin_login")}
-                </Link>
+                <div style={{ position: "relative", zIndex: 2000 }}>
+                  <LanguageSwitcher style={styles.languageSwitcher} />
+                </div>
+
+                {!isMobile && (
+                  <Link to="/login" className="pressable admin-login-btn" style={styles.adminBtn}>
+                    {t("admin_login")}
+                  </Link>
+                )}
+
                 {isMobile && (
                   <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
+                    style={{ background: "none", border: "none", cursor: "pointer" }}
                   >
                     {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                   </button>
@@ -632,18 +674,11 @@ const BusSevaHomepage = () => {
 
             {mobileMenuOpen && isMobile && (
               <div style={styles.mobileMenu}>
-                <a href="#home" style={styles.mobileMenuItem}>
-                  {t("nav_home")}
-                </a>
-                <a href="#how-it-works" style={styles.mobileMenuItem}>
-                  {t("nav_how_it_works")}
-                </a>
-                <a href="#features" style={styles.mobileMenuItem}>
-                  {t("nav_features")}
-                </a>
-                <a href="#platforms" style={styles.mobileMenuItem}>
-                  {t("nav_platforms")}
-                </a>
+                <a href="#home" style={styles.mobileMenuItem}>{t("nav_home")}</a>
+                <a href="#how-it-works" style={styles.mobileMenuItem}>{t("nav_how_it_works")}</a>
+                <a href="#features" style={styles.mobileMenuItem}>{t("nav_features")}</a>
+                <a href="#platforms" style={styles.mobileMenuItem}>{t("nav_platforms")}</a>
+                <Link to="/login" style={styles.mobileMenuItem}>{t("admin_login")}</Link>
               </div>
             )}
           </nav>
@@ -658,110 +693,37 @@ const BusSevaHomepage = () => {
               <div style={styles.road} />
               {/* Animated Bus */}
               <div style={styles.busTrack}>
-                <svg
-                  width="180"
-                  height="36"
-                  viewBox="0 0 180 36"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style={{ overflow: "visible" }}
-                >
-                  {/* puff */}
-                  <circle
-                    cx="12"
-                    cy="22"
-                    r="6"
-                    fill="rgba(2,6,23,0.18)"
-                    style={{ animation: "puff 1.8s ease-out infinite" }}
-                  />
-                  {/* body */}
-                  <rect
-                    x="30"
-                    y="6"
-                    rx="6"
-                    width="120"
-                    height="22"
-                    fill="#ef4444"
-                  />
-                  <rect
-                    x="30"
-                    y="6"
-                    rx="6"
-                    width="120"
-                    height="10"
-                    fill="#fca5a5"
-                    opacity="0.3"
-                  />
-                  {/* windows */}
+                <svg width="180" height="36" viewBox="0 0 180 36" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ overflow: "visible" }}>
+                  <circle cx="12" cy="22" r="6" fill="rgba(2,6,23,0.18)" style={{ animation: "puff 1.8s ease-out infinite" }} />
+                  <rect x="30" y="6" rx="6" width="120" height="22" fill="#ef4444" />
+                  <rect x="30" y="6" rx="6" width="120" height="10" fill="#fca5a5" opacity="0.3" />
                   {[0, 1, 2, 3, 4].map((i) => (
-                    <rect
-                      key={i}
-                      x={40 + i * 20}
-                      y="10"
-                      width="14"
-                      height="8"
-                      rx="2"
-                      fill="#e2e8f0"
-                    />
+                    <rect key={i} x={40 + i * 20} y="10" width="14" height="8" rx="2" fill="#e2e8f0" />
                   ))}
-                  {/* door */}
-                  <rect
-                    x="140"
-                    y="12"
-                    width="8"
-                    height="12"
-                    rx="2"
-                    fill="#fee2e2"
-                  />
-                  {/* wheels */}
+                  <rect x="140" y="12" width="8" height="12" rx="2" fill="#fee2e2" />
                   <g transform="translate(50,26)">
                     <circle r="6" fill="#0f172a" />
                     <circle r="2.5" fill="#94a3b8" />
-                    <g
-                      style={{
-                        transformOrigin: "center",
-                        animation: "tireSpin 0.9s linear infinite",
-                      }}
-                    >
-                      <rect
-                        x="-1"
-                        y="-6"
-                        width="2"
-                        height="12"
-                        fill="#1e293b"
-                      />
+                    <g style={{ transformOrigin: "center", animation: "tireSpin 0.9s linear infinite" }}>
+                      <rect x="-1" y="-6" width="2" height="12" fill="#1e293b" />
                     </g>
                   </g>
                   <g transform="translate(130,26)">
                     <circle r="6" fill="#0f172a" />
                     <circle r="2.5" fill="#94a3b8" />
-                    <g
-                      style={{
-                        transformOrigin: "center",
-                        animation: "tireSpin 0.9s linear infinite",
-                      }}
-                    >
-                      <rect
-                        x="-1"
-                        y="-6"
-                        width="2"
-                        height="12"
-                        fill="#1e293b"
-                      />
+                    <g style={{ transformOrigin: "center", animation: "tireSpin 0.9s linear infinite" }}>
+                      <rect x="-1" y="-6" width="2" height="12" fill="#1e293b" />
                     </g>
                   </g>
-                  {/* headlight */}
                   <circle cx="154" cy="22" r="2.5" fill="#fde68a" />
                 </svg>
               </div>
             </div>
 
             <div style={styles.container}>
-              <h1 style={styles.heroTitle}>
+              <h1 className="gradient-text" style={styles.heroTitle}>
                 {t("hero_title")}
-                <span style={styles.heroTitleBlue}>
-                  {t("hero_title_highlight")}
-                </span>
+                <span style={styles.heroTitleBlue}>{t("hero_title_highlight")}</span>
               </h1>
               <p style={styles.heroSubtitle}>{t("hero_subtitle")}</p>
 
@@ -776,7 +738,7 @@ const BusSevaHomepage = () => {
                         type="text"
                         placeholder={t("from_placeholder")}
                         style={{ ...styles.input }}
-                        className="input-focus"
+                        className="input-focus premium-input"
                       />
                     </div>
                   </div>
@@ -788,7 +750,7 @@ const BusSevaHomepage = () => {
                         type="text"
                         placeholder={t("to_placeholder")}
                         style={{ ...styles.input }}
-                        className="input-focus"
+                        className="input-focus premium-input"
                       />
                     </div>
                   </div>
@@ -796,71 +758,50 @@ const BusSevaHomepage = () => {
                     <label style={styles.label}>{t("search_date")}</label>
                     <div style={styles.inputWrapper}>
                       <Calendar style={styles.inputIcon} />
-                      <input
-                        type="date"
-                        style={{ ...styles.input }}
-                        className="input-focus"
-                      />
+                      <input type="date" style={{ ...styles.input }} className="input-focus" />
                     </div>
                   </div>
                   <button style={styles.searchBtn} className="pressable">
-                    <Clock4
-                      size={16}
-                      style={{ marginRight: 8, verticalAlign: "middle" }}
-                    />
+                    <Clock4 size={16} style={{ marginRight: 8, verticalAlign: "middle" }} />
                     {t("search_button")}
                   </button>
                 </div>
 
                 {/* quick chips */}
-                <div
-                  style={{
-                    marginTop: 12,
-                    display: "flex",
-                    gap: 8,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 13,
-                      color: "#64748b",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
+                <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 13, color: "#64748b", display: "inline-flex", alignItems: "center", gap: 6 }}>
                     <Flame size={16} color="#f59e0b" /> {t("popular_corridors")}
                   </span>
                   <div style={styles.cityMarqueeWrap}>
                     <div style={styles.cityMarquee}>
                       {cities.concat(cities).map((c, i) => (
-                        <span key={i} style={{ marginRight: 22 }}>
-                          {c}
-                        </span>
+                        <span key={i} style={{ marginRight: 22 }}>{c}</span>
                       ))}
                     </div>
                   </div>
                 </div>
               </div>
 
+              {/* NEW: Perfectly aligned 16:9 video */}
+              
+
               {/* Stats */}
               <div style={styles.statsGrid}>
-                <div style={styles.statItem} className="hover-bump">
+                <div style={styles.statItem} className="hover-bump float">
                   <div style={styles.statNumber}>
                     {stats.buses}
                     <span style={styles.statSuffix}>+</span>
                   </div>
                   <div style={styles.statLabel}>{t("active_buses")}</div>
                 </div>
-                <div style={styles.statItem} className="hover-bump">
+                <div style={styles.statItem} className="hover-bump float">
                   <div style={styles.statNumber}>
                     {stats.cities}
                     <span style={styles.statSuffix}>+</span>
                   </div>
                   <div style={styles.statLabel}>{t("cities_connected")}</div>
                 </div>
-                <div style={styles.statItem} className="hover-bump">
+                <div style={styles.statItem} className="hover-bump float">
                   <div style={styles.statNumber}>
                     {stats.travelers}
                     <span style={styles.statSuffix}>k+</span>
@@ -872,142 +813,71 @@ const BusSevaHomepage = () => {
           </section>
 
           {/* How It Works */}
-          <section
-            id="how-it-works"
-            style={{ ...styles.section, ...styles.sectionWhite }}
-          >
+          <section id="how-it-works" style={{ ...styles.section, ...styles.sectionWhite }} className="how-it-works-section-bg">
             <div style={styles.container}>
               <div style={styles.sectionHeader}>
                 <h2 style={styles.sectionTitle}>{t("how_it_works_title")}</h2>
-                <p style={styles.sectionSubtitle}>
-                  {t("how_it_works_subtitle")}
-                </p>
+                <p style={styles.sectionSubtitle}>{t("how_it_works_subtitle")}</p>
               </div>
+
               <div style={styles.howItWorksGrid}>
                 {/* Passengers */}
-                <div
-                  style={{ ...styles.processCard, ...styles.processCardBlue }}
-                  className="hover-bump"
-                >
+                <div style={{ ...styles.processCard, ...styles.processCardBlue }} className="hover-bump">
                   <div style={styles.processHeader}>
-                    <Users
-                      style={{ width: 32, height: 32, color: "#2563eb" }}
-                    />
+                    <Users style={{ width: 32, height: 32, color: "#2563eb" }} />
                     <h3 style={styles.processTitle}>{t("for_passengers")}</h3>
                   </div>
                   <div style={styles.processSteps}>
                     <div style={styles.processStep}>
-                      <div
-                        style={{
-                          ...styles.stepNumber,
-                          ...styles.stepNumberBlue,
-                        }}
-                      >
-                        1
-                      </div>
+                      <div style={{ ...styles.stepNumber, ...styles.stepNumberBlue }}>1</div>
                       <div>
                         <h4 style={styles.stepTitle}>{t("search_book")}</h4>
-                        <p style={styles.stepDescription}>
-                          {t("search_book_desc")}
-                        </p>
+                        <p style={styles.stepDescription}>{t("search_book_desc")}</p>
                       </div>
                     </div>
                     <div style={styles.processStep}>
-                      <div
-                        style={{
-                          ...styles.stepNumber,
-                          ...styles.stepNumberBlue,
-                        }}
-                      >
-                        2
-                      </div>
+                      <div style={{ ...styles.stepNumber, ...styles.stepNumberBlue }}>2</div>
                       <div>
                         <h4 style={styles.stepTitle}>{t("track_travel")}</h4>
-                        <p style={styles.stepDescription}>
-                          {t("track_travel_desc")}
-                        </p>
+                        <p style={styles.stepDescription}>{t("track_travel_desc")}</p>
                       </div>
                     </div>
                     <div style={styles.processStep}>
-                      <div
-                        style={{
-                          ...styles.stepNumber,
-                          ...styles.stepNumberBlue,
-                        }}
-                      >
-                        3
-                      </div>
+                      <div style={{ ...styles.stepNumber, ...styles.stepNumberBlue }}>3</div>
                       <div>
                         <h4 style={styles.stepTitle}>{t("safety_feedback")}</h4>
-                        <p style={styles.stepDescription}>
-                          {t("safety_feedback_desc")}
-                        </p>
+                        <p style={styles.stepDescription}>{t("safety_feedback_desc")}</p>
                       </div>
                     </div>
                   </div>
                 </div>
+
                 {/* Drivers */}
-                <div
-                  style={{ ...styles.processCard, ...styles.processCardGreen }}
-                  className="hover-bump"
-                >
+                <div style={{ ...styles.processCard, ...styles.processCardGreen }} className="hover-bump">
                   <div style={styles.processHeader}>
-                    <UserCheck
-                      style={{ width: 32, height: 32, color: "#16a34a" }}
-                    />
+                    <UserCheck style={{ width: 32, height: 32, color: "#16a34a" }} />
                     <h3 style={styles.processTitle}>{t("for_drivers")}</h3>
                   </div>
                   <div style={styles.processSteps}>
                     <div style={styles.processStep}>
-                      <div
-                        style={{
-                          ...styles.stepNumber,
-                          ...styles.stepNumberGreen,
-                        }}
-                      >
-                        1
-                      </div>
+                      <div style={{ ...styles.stepNumber, ...styles.stepNumberGreen }}>1</div>
                       <div>
-                        <h4 style={styles.stepTitle}>
-                          {t("identity_verification")}
-                        </h4>
-                        <p style={styles.stepDescription}>
-                          {t("identity_verification_desc")}
-                        </p>
+                        <h4 style={styles.stepTitle}>{t("identity_verification")}</h4>
+                        <p style={styles.stepDescription}>{t("identity_verification_desc")}</p>
                       </div>
                     </div>
                     <div style={styles.processStep}>
-                      <div
-                        style={{
-                          ...styles.stepNumber,
-                          ...styles.stepNumberGreen,
-                        }}
-                      >
-                        2
-                      </div>
+                      <div style={{ ...styles.stepNumber, ...styles.stepNumberGreen }}>2</div>
                       <div>
-                        <h4 style={styles.stepTitle}>
-                          {t("route_management")}
-                        </h4>
-                        <p style={styles.stepDescription}>
-                          {t("route_management_desc")}
-                        </p>
+                        <h4 style={styles.stepTitle}>{t("route_management")}</h4>
+                        <p style={styles.stepDescription}>{t("route_management_desc")}</p>
                       </div>
                     </div>
                     <div style={styles.processStep}>
-                      <div
-                        style={{
-                          ...styles.stepNumber,
-                          ...styles.stepNumberGreen,
-                        }}
-                      >
-                        3
-                      </div>
+                      <div style={{ ...styles.stepNumber, ...styles.stepNumberGreen }}>3</div>
                       <div>
                         <h4 style={styles.stepTitle}>{t("gps_tracking")}</h4>
-                        <p style={styles.stepDescription}>
-                          {t("gps_tracking_desc")}
-                        </p>
+                        <p style={styles.stepDescription}>{t("gps_tracking_desc")}</p>
                       </div>
                     </div>
                   </div>
@@ -1015,190 +885,109 @@ const BusSevaHomepage = () => {
               </div>
             </div>
           </section>
+          <div style={styles.videoWrap}>
+                <video
+                  style={styles.videoEl}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  controls={false}
+                  preload="metadata"
+                >
+                  <source src="/assets/Tier_Video_Ready.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
 
           {/* Features */}
-          <section
-            id="features"
-            style={{ ...styles.section, ...styles.sectionGray }}
-          >
+          <section id="features" style={{ ...styles.section, ...styles.sectionGray }} className="features-section-bg">
             <div style={styles.container}>
               <div style={styles.sectionHeader}>
                 <h2 style={styles.sectionTitle}>{t("features_title")}</h2>
                 <p style={styles.sectionSubtitle}>{t("features_subtitle")}</p>
               </div>
+
               <div style={styles.featuresGrid}>
                 <div style={styles.featureCard} className="hover-bump">
                   <Shield style={{ ...styles.featureIcon, color: "#2563eb" }} />
                   <h3 style={styles.featureTitle}>{t("enhanced_security")}</h3>
-                  <p style={styles.featureDescription}>
-                    {t("features_subtitle")}
-                  </p>
+                  <p style={styles.featureDescription}>{t("features_subtitle")}</p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
                   <MapPin style={{ ...styles.featureIcon, color: "#16a34a" }} />
                   <h3 style={styles.featureTitle}>{t("realtime_tracking")}</h3>
-                  <p style={styles.featureDescription}>
-                    {t("realtime_tracking_desc")}
-                  </p>
+                  <p style={styles.featureDescription}>{t("realtime_tracking_desc")}</p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
-                  <AlertTriangle
-                    style={{ ...styles.featureIcon, color: "#dc2626" }}
-                  />
+                  <AlertTriangle style={{ ...styles.featureIcon, color: "#dc2626" }} />
                   <h3 style={styles.featureTitle}>{t("sos_safety")}</h3>
-                  <p style={styles.featureDescription}>
-                    {t("sos_safety_desc")}
-                  </p>
+                  <p style={styles.featureDescription}>{t("sos_safety_desc")}</p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
-                  <Smartphone
-                    style={{ ...styles.featureIcon, color: "#7c3aed" }}
-                  />
+                  <Smartphone style={{ ...styles.featureIcon, color: "#7c3aed" }} />
                   <h3 style={styles.featureTitle}>{t("digital_ticketing")}</h3>
-                  <p style={styles.featureDescription}>
-                    {t("digital_ticketing_desc")}
-                  </p>
+                  <p style={styles.featureDescription}>{t("digital_ticketing_desc")}</p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
                   <Star style={{ ...styles.featureIcon, color: "#eab308" }} />
                   <h3 style={styles.featureTitle}>{t("verified_reviews")}</h3>
-                  <p style={styles.featureDescription}>
-                    {t("verified_reviews_desc")}
-                  </p>
+                  <p style={styles.featureDescription}>{t("verified_reviews_desc")}</p>
                 </div>
                 <div style={styles.featureCard} className="hover-bump">
                   <Users style={{ ...styles.featureIcon, color: "#6366f1" }} />
                   <h3 style={styles.featureTitle}>{t("occupancy_tracking")}</h3>
-                  <p style={styles.featureDescription}>
-                    {t("occupancy_tracking_desc")}
-                  </p>
+                  <p style={styles.featureDescription}>{t("occupancy_tracking_desc")}</p>
                 </div>
               </div>
             </div>
           </section>
 
           {/* Platforms */}
-          <section
-            id="platforms"
-            style={{ ...styles.section, ...styles.sectionWhite }}
-          >
+          <section id="platforms" style={{ ...styles.section, ...styles.sectionWhite }}>
             <div style={styles.container}>
               <div style={styles.sectionHeader}>
                 <h2 style={styles.sectionTitle}>{t("platforms_title")}</h2>
                 <p style={styles.sectionSubtitle}>{t("platforms_subtitle")}</p>
               </div>
+
               <div style={styles.platformsGrid}>
-                <div
-                  style={{ ...styles.platformCard, ...styles.platformCardBlue }}
-                  className="hover-bump"
-                >
+                <div style={{ ...styles.platformCard, ...styles.platformCardBlue }} className="hover-bump">
                   <Users style={{ width: 48, height: 48, marginBottom: 18 }} />
                   <h3 style={styles.platformTitle}>{t("user_mobile_app")}</h3>
                   <div style={styles.platformFeatures}>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("bus_search_booking")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("realtime_tracking_feature")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("digital_payments")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("alerts_updates")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("safety_tools")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("ratings_reviews")}</span>
-                    </div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("bus_search_booking")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("realtime_tracking_feature")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("digital_payments")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("alerts_updates")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("safety_tools")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("ratings_reviews")}</span></div>
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    ...styles.platformCard,
-                    ...styles.platformCardGreen,
-                  }}
-                  className="hover-bump"
-                >
-                  <UserCheck
-                    style={{ width: 48, height: 48, marginBottom: 18 }}
-                  />
+                <div style={{ ...styles.platformCard, ...styles.platformCardGreen }} className="hover-bump">
+                  <UserCheck style={{ width: 48, height: 48, marginBottom: 18 }} />
                   <h3 style={styles.platformTitle}>{t("driver_mobile_app")}</h3>
                   <div style={styles.platformFeatures}>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("verification_kyc")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("gps_trip_tracking")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("route_guidance")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("occupancy_updates")}s</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("incident_reporting")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("trip_management")}</span>
-                    </div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("verification_kyc")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("gps_trip_tracking")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("route_guidance")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("occupancy_updates")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("incident_reporting")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("trip_management")}</span></div>
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    ...styles.platformCard,
-                    ...styles.platformCardPurple,
-                  }}
-                  className="hover-bump"
-                >
-                  <Settings
-                    style={{ width: 48, height: 48, marginBottom: 18 }}
-                  />
-                  <h3 style={styles.platformTitle}>
-                    {t("admin_web_dashboard")}
-                  </h3>
+                <div style={{ ...styles.platformCard, ...styles.platformCardPurple }} className="hover-bump">
+                  <Settings style={{ width: 48, height: 48, marginBottom: 18 }} />
+                  <h3 style={styles.platformTitle}>{t("admin_web_dashboard")}</h3>
                   <div style={styles.platformFeatures}>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("fleet_management")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("driver_verification")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("route_planning")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("analytics_slas")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("risk_monitoring")}</span>
-                    </div>
-                    <div style={styles.platformFeature}>
-                      <CheckCircle size={20} />
-                      <span>{t("system_health")}</span>
-                    </div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("fleet_management")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("driver_verification")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("route_planning")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("analytics_slas")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("risk_monitoring")}</span></div>
+                    <div style={styles.platformFeature}><CheckCircle size={20} /><span>{t("system_health")}</span></div>
                   </div>
                 </div>
               </div>
@@ -1226,15 +1015,22 @@ const BusSevaHomepage = () => {
               <h2 style={styles.ctaTitle}>{t("cta_title")}</h2>
               <p style={styles.ctaSubtitle}>{t("cta_subtitle")}</p>
               <div style={styles.ctaButtons}>
-                <button style={styles.ctaButton} className="pressable">
-                  {t("download_user_app")}
-                </button>
-                <button style={styles.ctaButton} className="pressable">
-                  {t("download_driver_app")}
-                </button>
+                <button style={styles.ctaButton} className="pressable">{t("download_user_app")}</button>
+                <button style={styles.ctaButton} className="pressable">{t("download_driver_app")}</button>
               </div>
             </div>
           </section>
+
+          {/* Rain effect container (decorative) */}
+          <div className="rain-container">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="raindrop"
+                style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 2}s` }}
+              />
+            ))}
+          </div>
         </div>
       )}
     </>
