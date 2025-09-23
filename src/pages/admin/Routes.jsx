@@ -64,15 +64,30 @@ async function reverseNominatim(lat, lon) {
 }
 
 // Build OSRM URL depending on environment (dev uses Vite proxy, prod uses serverless proxy)
+// Inside Routes.jsx
+
 function buildOsrmUrl(start, end) {
   const coords = `${start.lon},${start.lat};${end.lon},${end.lat}`;
   if (import.meta.env.DEV) {
-    // Vite dev proxy forwards /route to https://router.project-osrm.org
     return `/route/v1/driving/${coords}?overview=full&geometries=polyline&alternatives=false&steps=false`;
   }
-  // Production: call Vercel Function proxy
   return `/api/osrm?coords=${encodeURIComponent(coords)}`;
 }
+
+async function osrmRoute(start, end) {
+  const url = buildOsrmUrl(start, end);
+  const res = await fetch(url, { method: 'GET' });
+  if (!res.ok) throw new Error(`Routing failed: ${res.status}`);
+  const json = await res.json();
+  const route = json?.routes?.[0];
+  if (!route) throw new Error('No route found between the given locations');
+  return {
+    distanceKm: Math.round((route.distance || 0) / 1000),
+    durationMin: Math.round((route.duration || 0) / 60),
+    polyline: route.geometry,
+  };
+}
+
 
 // Route between two coords via OSRM -> { distanceKm, durationMin, polyline }
 async function osrmRoute(start, end) {
