@@ -40,7 +40,7 @@ const busStopIcon = new L.Icon({
 
 // Free endpoints (no keys); be considerate of public usage limits
 const NOMINATIM_BASE = "https://nominatim.openstreetmap.org";
-const OSRM_BASE = "https://router.project-osrm.org";
+OSRM_BASE = "https://routing.openstreetmap.de/routed-car";
 
 // Geocode a place/city name -> { lat, lon, display_name }
 async function geocodeNominatim(query) {
