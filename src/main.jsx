@@ -16,9 +16,19 @@ import Alerts from "./pages/admin/Alerts.jsx";
 import Settings from "./pages/admin/Settings.jsx";
 
 import "./i18n";
+import SiteGuideAssistant from "./components/SiteGuideAssistant";
+
+// Optional: smooth-scroll to #hash targets inside BrowserRouter
+import ScrollToAnchor from "./scroll-to-anchor.jsx"; // see helper below
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
+    {/* Global assistant, persists across all routes */}
+    <SiteGuideAssistant />
+
+    {/* Optional: enable smooth anchor jumps */}
+    <ScrollToAnchor />
+
     <Routes>
       <Route path="/" element={<App />} />
       <Route path="/login" element={<Login />} />

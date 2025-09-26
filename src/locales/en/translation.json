@@ -110,5 +110,24 @@
   "cta_title": "Ready to Transform Public Transport?",
   "cta_subtitle": "Bring trusted search, live tracking, and compelling offers together to deliver a top-tier rider experience across India.",
   "download_user_app": "Download User App",
-  "download_driver_app": "Download Driver App"
+  "download_driver_app": "Download Driver App",
+
+  "hello_how_can_help": "Hi! Ask anything or say: 'Open features', 'Go to how it works', or 'Open admin login'.",
+  "open_assistant": "Open assistant",
+  "assistant": "Assistant",
+  "assistant_title": "Site Guide Assistant",
+  "ask_anything": "Ask anything…",
+  "speak": "Speak",
+  "stop": "Stop",
+  "send": "Send",
+  "speech_unavailable": "Speech not supported",
+  "navigating_admin_login": "Opening Admin Login…",
+  "navigating_home": "Taking you to Home…",
+  "navigating_how_it_works": "Taking you to How it works…",
+  "navigating_features": "Taking you to Features…",
+  "navigating_platforms": "Taking you to Platforms…",
+  "assistant_generic_help": "Here’s what was found about that on this site.",
+  "assistant_fallback": "Try: 'Open features', 'Go to how it works', 'Open admin login', or ask about booking, tracking, safety and reviews."
+
+
 }
