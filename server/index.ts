@@ -159,7 +159,6 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   console.error("[ERR]", err?.message, err?.stack);
   res.status(500).json({ ok: false, error: String(err?.message || err) });
 }); // Standard Express pattern makes 500s visible and actionable. [web:291][web:295]
-
 app.listen(process.env.PORT || 3000, () =>
   console.log("server up on " + (process.env.PORT || 3000))
 );
