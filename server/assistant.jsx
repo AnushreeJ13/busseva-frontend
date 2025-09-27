@@ -22,7 +22,7 @@ async function embedQuery(query) {
     content: query,
     taskType: TaskType.RETRIEVAL_QUERY, // best for search queries
   });
-  return res.embedding.values;
+  return res.embeddings[0].values;
 }
 
 router.post("/assistant", async (req, res) => {
