@@ -93,16 +93,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
    // Replace your generation try/catch block
 let text = "";
 try {
-  const system = `Answer strictly from provided context; if unknown, say so; respond in the user's language.`;
-  const trimmed = contexts.slice(0, 60000); // keep prompt modest to reduce errors
-  const prompt = system + "\n\n" + `Question:\n${query}\n\nContext:\n${trimmed}`;
+  // generation block (replace old @google/generative-ai call)
+const system = `Answer strictly from provided context; if unknown, say so; respond in the user's language.`; // [web:553]
+const trimmed = contexts.slice(0, 60000); // keep payload modest to reduce model errors [web:304]
+const prompt = system + "\n\n" + `Question:\n${query}\n\nContext:\n${trimmed}`; // [web:553]
 
-  // Use @google/genai for generation
-  const out = await ai.models.generateContent({
-    model: "gemini-1.5-flash", // or "gemini-1.5-flash-001" from models.list
-    contents: [{ role: "user", parts: [{ text: prompt }] }]
-  });
-  text = out.text || out.candidates?.[0]?.content?.parts?.[0]?.text || "";
+const out = await ai.models.generateContent({
+  model: "gemini-2.0-flash", // or "gemini-2.5-flash-001" as listed in models.list [web:553][web:541]
+  contents: [{ role: "user", parts: [{ text: prompt }] }]
+}); // [web:553]
+const text = out.text || out.candidates?.[0]?.content?.parts?.[0]?.text || ""; // [web:553]
+
   if (!text) throw new Error("empty generation");
   console.log("[GEMINI] ok via @google/genai");
 } catch (e: any) {
