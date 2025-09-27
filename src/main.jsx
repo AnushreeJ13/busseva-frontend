@@ -12,6 +12,7 @@ import DashboardHome from "./pages/admin/DashboardHome.jsx";
 import Buses from "./pages/admin/Buses.jsx";
 import Drivers from "./pages/admin/Drivers.jsx";
 import RoutesPage from "./pages/admin/Routes.jsx";
+import Shifts from "./pages/admin/Shifts.jsx";
 import Alerts from "./pages/admin/Alerts.jsx";
 import Settings from "./pages/admin/Settings.jsx";
 
@@ -42,6 +43,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="routes" element={<RoutesPage />} />
         <Route path="alerts" element={<Alerts />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="shifts" element={<Shifts />} />
       </Route>
     </Routes>
   </BrowserRouter>

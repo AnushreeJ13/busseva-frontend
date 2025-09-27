@@ -123,8 +123,9 @@ export default function SiteGuideAssistant() {
     if (lower.includes("admin") || lower.includes("login") || hiAdmin.some(x => lower.includes(x))) {
       window.location.href = "/login"; return t("navigating_admin_login", "Admin login khol raha/rahi hoon…");
     }
+    // Home => platform
     if (lower.includes("home") || hiHome.some(x => lower.includes(x))) {
-      window.location.hash = "#home"; return t("navigating_home", "Home dikhaya jaa raha hai…");
+      window.location.hash = ""; return t("navigating_home", "Home me Platform section dikhaya jaa raha hai…");
     }
     if (hiHow.some(x => lower.includes(x))) {
       window.location.hash = "#how-it-works"; return t("navigating_how_it_works", "How it works section khol diya…");
@@ -132,14 +133,16 @@ export default function SiteGuideAssistant() {
     if (lower.includes("feature") || hiFeatures.some(x => lower.includes(x))) {
       window.location.hash = "#features"; return t("navigating_features", "Features khol diye…");
     }
+    // Platform keywords => platform
     if (lower.includes("platform")) {
-      window.location.hash = "#platforms"; return t("navigating_platforms", "Platforms section khul gaya…");
+      window.location.hash = "#platforms"; return t("navigating_platforms", "Platform section khul gaya…");
     }
+    // App/Driver => platform (centralized)
     if (hiApp.some(x => lower.includes(x))) {
-      window.location.hash = "#app"; return t("navigating_app", "App section khol diya—download aur usage steps milenge…");
+      window.location.hash = "#platforms"; return t("navigating_app", "Platform section me App details dikh rahe hain…");
     }
     if (hiDriver.some(x => lower.includes(x))) {
-      window.location.hash = "#driver"; return t("navigating_driver", "Driver section khol diya—onboarding, shift aur documents…");
+      window.location.hash = "#platforms"; return t("navigating_driver", "Platform section me Driver details dikh rahe hain…");
     }
     return null;
   }
@@ -240,9 +243,8 @@ export default function SiteGuideAssistant() {
             : [
                 "• Home: Top menu → ‘Features’, ‘How it works’, ‘Booking’, ‘Tracking’, ‘App’, ‘Driver’, ‘Admin’.",
                 "• Booking: Pick route/date → passenger details → payment → confirmation.",
-                "• Tracking: Enter PNR/booking ID to see live location.",
-                "• App: See Android/iOS download and quick usage in ‘App’.",
-                "• Driver: Onboarding, documents, shifts, and SOS in ‘Driver’.",
+                "• User: See Android/iOS download and quick usage in ‘App’.",
+                "• Driver: Download Driver app ‘Driver’.",
                 "• Safety/Reviews: Use SOS, file issues, and give ratings.",
                 "• Admin: Staff/managers use ‘Admin login’."
               ].join("\n"));
@@ -254,6 +256,21 @@ export default function SiteGuideAssistant() {
     })();
     return () => { mounted = false; };
   }, [i18n.language]);
+
+  // NEW: Default to #platform and smooth-scroll on load and on hash changes
+  useEffect(() => {
+    const ensureDefaultAndScroll = () => {
+      if (!window.location.hash || window.location.hash === "#home") {
+        history.replaceState(null, "", "#platforms");
+      }
+      const id = (window.location.hash || "#platforms").slice(1);
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+    };
+    const t = setTimeout(ensureDefaultAndScroll, 0);
+    window.addEventListener("hashchange", ensureDefaultAndScroll);
+    return () => { clearTimeout(t); window.removeEventListener("hashchange", ensureDefaultAndScroll); };
+  }, []);
 
   const styles = {
     fab: { position: "fixed", bottom: 20, right: 20, width: 56, height: 56, borderRadius: "50%", background: "#0f1280", color: "white", border: "none", boxShadow: "0 8px 22px rgba(0,0,0,0.25)", cursor: "pointer", zIndex: 2500 },
@@ -272,12 +289,9 @@ export default function SiteGuideAssistant() {
   const quickChips = [
     { k: "Features", q: "Open features" },
     { k: "How it works", q: "Go to how it works" },
-    { k: "Booking", q: "Booking kaise karu" },
-    { k: "Tracking", q: "Tracking dikhao" },
-    { k: "Payments", q: "Payments options" },
     { k: "Reviews", q: "Reviews kaise du" },
-    { k: "App", q: "App download aur use" },
-    { k: "Driver", q: "Driver onboarding aur shift" },
+    { k: "User", q: "App download aur use" },
+    { k: "Driver", q: "Driver App download aur use" },
     { k: "Admin", q: "Open admin login" },
   ];
 

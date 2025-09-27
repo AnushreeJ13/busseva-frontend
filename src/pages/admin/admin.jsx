@@ -44,6 +44,7 @@ function getStatusColorClass(status) {
       return "";
   }
 }
+
 function showNotification(message, type = "info") {
   const notification = document.createElement("div");
   notification.style.cssText = `
@@ -65,12 +66,14 @@ function showNotification(message, type = "info") {
     setTimeout(() => notification.remove(), 300);
   }, 3000);
 }
+
 function getOccupancyColorClass(occupancy) {
   const n = Number(occupancy ?? 0);
   if (n >= 80) return "occupancy-high";
   if (n >= 50) return "occupancy-medium";
   return "";
 }
+
 function timeAgo(d) {
   if (!d) return "—";
   const ms = Date.now() - d.getTime();
@@ -85,7 +88,7 @@ function timeAgo(d) {
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [adminName, setAdminName] = useState("Admin"); // Added state for admin name
+  const [adminName, setAdminName] = useState("Admin");
   const addBusRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -101,6 +104,7 @@ export default function Admin() {
     "buses",
     "drivers",
     "routes",
+    "shifts",
     "alerts",
     "settings",
   ]);
@@ -196,7 +200,7 @@ export default function Admin() {
     };
   }, []);
 
-  // Today's revenue (payments collection with { amount:number, createdAt:Timestamp })
+  // Today's revenue
   useEffect(() => {
     let mounted = true;
     const run = async () => {
@@ -275,7 +279,7 @@ export default function Admin() {
     }
   };
 
-  // Unique UI effects: aurora, magnetic CTA, confetti (unchanged)
+  // UI effects
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", "metro-neon");
 
@@ -422,6 +426,7 @@ export default function Admin() {
                 { id: "buses", label: "Bus Management", icon: Bus },
                 { id: "drivers", label: "Driver Management", icon: UserCheck },
                 { id: "routes", label: "Route Management", icon: RouteIcon },
+                { id: "shifts", label: "Shift Management", icon: Clock },
                 {
                   id: "alerts",
                   label: "Alerts & Reports",

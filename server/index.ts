@@ -119,7 +119,7 @@ app.get("/api/debug/query", async (_req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// Dynamic Tier‑2 “site guide”
+// Enhanced BusSeva-specific site guide
 app.get("/api/guide", async (req, res, next) => {
   try {
     const lang = (String(req.query.lang || "hi") === "hi") ? "hi" : "en";
@@ -127,11 +127,30 @@ app.get("/api/guide", async (req, res, next) => {
       return res.json({ text: GUIDE_CACHE.text, lang });
     }
 
-    // Expanded intents (includes App + Driver)
+    // Multi-platform BusSeva intents covering all features across platforms
     const intents = [
-      "features","how it works","booking","tracking","payments","safety","reviews","helpline","admin login",
-      "app","mobile app","android app","ios app","download app","driver","driver onboarding","driver app","driver documents","driver shifts","driver sos"
+      // Platform Access
+      "app download","mobile app","android app","ios app","web app","website booking","download busseva app","install app","platform access",
+      // Core Features
+      "features","busseva features","platform features","app features","web features","service features",
+      "bus booking","book bus tickets","online booking","ticket booking","seat selection","booking process",
+      "live tracking","bus tracking","track my bus","real time tracking","gps tracking","location tracking",
+      "payment options","pay online","payment methods","ticket payment","secure payment","payment gateway",
+      "cancel booking","refund policy","cancellation charges","modify booking","reschedule ticket",
+      "route information","bus routes","available buses","bus timing","schedule","timetable","route map",
+      // User Management
+      "user registration","account creation","login","profile management","user dashboard",
+      "customer support","helpline","contact us","help center","24x7 support","customer care",
+      // Driver Platform
+      "driver registration","driver app","become driver","driver onboarding","driver dashboard","driver earnings",
+      "driver features","driver tools","trip management","driver support","vehicle registration",
+      // Safety & Security
+      "safety features","emergency contact","sos","passenger safety","secure travel","safety measures",
+      "reviews and ratings","feedback","rate journey","service review","quality assurance",
+      // Platform Comparison
+      "android vs ios","mobile vs web","platform comparison","cross platform","multi device access"
     ];
+    
     const index = pc.Index(INDEX_NAME);
     const qVecs = await embedTexts(intents, "RETRIEVAL_QUERY");
     const matches = await Promise.all(qVecs.map(v => index.query({ vector: v, topK: 4, includeMetadata: true })));
@@ -141,36 +160,102 @@ app.get("/api/guide", async (req, res, next) => {
       .slice(0, 100000);
 
     const systemInstruction =
-      "Create a short, friendly onboarding guide for Tier‑2 Indian city users in the requested language, using only the provided context; keep language simple; include steps for features, how it works, booking, tracking, payments, reviews, safety, admin login, App (Android/iOS) quick usage, and Driver (onboarding, documents, shifts, SOS); include where to tap/click; do not invent URLs; return concise bullets.";
+      "Create a comprehensive multi-platform BusSeva guide for Indian users covering: 1) Platform access (Android app, iOS app, Web platform), 2) Complete feature comparison across platforms, 3) Step-by-step processes for booking/tracking/payments on each platform, 4) Driver features across platforms, 5) Safety and support options, 6) Platform-specific advantages. Include specific UI elements, button names, and navigation paths for each platform. Do not invent URLs.";
 
     const prompt = (lang === "hi")
-      ? "कॉन्टेक्स्ट देखकर ‘Features’, ‘How it works’, ‘Booking’, ‘Tracking’, ‘Payments’, ‘Reviews’, ‘Safety’, ‘Admin login’, ‘App (Android/iOS)’, और ‘Driver (onboarding/documents/shifts/SOS)’ का छोटा, सरल गाइड दें—सीधे स्टेप्स में, बिना नए लिंक बनाए।"
-      : "From the context, produce a concise guide for ‘Features’, ‘How it works’, ‘Booking’, ‘Tracking’, ‘Payments’, ‘Reviews’, ‘Safety’, ‘Admin login’, ‘App (Android/iOS)’, and ‘Driver (onboarding/documents/shifts/SOS)’—step‑by‑step, no fabricated links.";
+      ? "BusSeva के लिए एक complete multi-platform गाइड बनाएं जिसमें शामिल हो: 1) सभी platforms की access (Android App, iOS App, Website), 2) हर platform के features और फायदे, 3) Booking/Tracking/Payment के steps हर platform पर, 4) Driver features सभी platforms पर, 5) Safety और Support options, 6) Platform-specific UI elements और navigation। सरल भाषा में, बिना नए लिंक बनाए।"
+      : "Create a comprehensive multi-platform BusSeva guide covering: 1) Platform access methods (Android App, iOS App, Website), 2) Feature comparison across all platforms, 3) Step-by-step processes on each platform, 4) Driver features across platforms, 5) Safety and support options, 6) Platform-specific UI and navigation. Use simple language, no fabricated links.";
 
     const chat = await ai.chats.create({ model: GEN_MODEL, history: [], systemInstruction });
     let text = "";
     if (contexts.trim().length === 0) {
-      // Fallback template if site has not been crawled yet
+      // Enhanced multi-platform fallback template for BusSeva
       text = (lang === "hi")
         ? [
-            "• होम: ऊपर मेन्यू से ‘Features’, ‘How it works’, ‘Booking’, ‘Tracking’, ‘App’, ‘Driver’, ‘Admin’ खोलें।",
-            "• बुकिंग: रूट/तारीख चुनें → यात्री विवरण → पेमेंट → कन्फर्मेशन।",
-            "• ट्रैकिंग: ‘Tracking’ में PNR/बुकिंग ID से लाइव स्टेटस देखें।",
-            "• पेमेंट: कार्ड/UPI/नेट बैंकिंग दिखे तो चुनें; SMS/ईमेल पर रिसीट आती है।",
-            "• रिव्यू/सेफ्टी: रेटिंग दें, SOS/शिकायत दर्ज करें।",
-            "• ऐप: ‘App’ में एंड्रॉइड/iOS डाउनलोड, लॉगिन, और क्विक-यूज़ स्टेप्स देखें।",
-            "• ड्राइवर: ‘Driver’ में ऑनबोर्डिंग, ज़रूरी डॉक्यूमेंट्स, शिफ्ट मैनेजमेंट, SOS रिपोर्टिंग।",
-            "• एडमिन: ‘Admin login’ से स्टाफ/मैनेजर साइन-इन करें।"
+            "🚌 **BusSeva - सभी Platforms पर उपलब्ध**",
+            "",
+            "📱 **ANDROID APP**",
+            "• Google Play Store से 'BusSeva' डाउनलोड करें",
+            "• Features: Push notifications, Offline ticket access, GPS tracking, Quick booking",
+            "• Navigation: Bottom tabs → Home, Search, Bookings, Profile",
+            "• Booking: Home → 'Book Bus' → Route selection → Seat map → Payment",
+            "",
+            "🍎 **iOS APP**", 
+            "• App Store से 'BusSeva' install करें",
+            "• Features: Face ID/Touch ID login, Apple Pay, Siri shortcuts",
+            "• Interface: Tab bar navigation, Swipe gestures",
+            "• Tracking: 'My Trips' → Select journey → 'Track Live'",
+            "",
+            "💻 **WEB PLATFORM (busseva.vercel.app)**",
+            "• Browser में direct access",
+            "• Features: Large screen booking, Print tickets, Bulk booking",
+            "• Navigation: Top menu → Home, Routes, Book Now, Track, Support",
+            "• Advantages: No download needed, Full keyboard support",
+            "",
+            "🎯 **PLATFORM COMPARISON**",
+            "📱 Mobile Apps: Best for quick booking, live notifications, GPS tracking",
+            "💻 Web: Perfect for detailed planning, group bookings, office use",
+            "",
+            "🚗 **DRIVER PLATFORM**",
+            "📱 Driver Mobile App:",
+            "• Trip management, Route optimization, Earnings tracker",
+            "• Real-time passenger updates, Navigation assistance",
+            "💻 Driver Web Dashboard:",
+            "• Detailed analytics, Document management, Schedule planning",
+            "",
+            "🛡️ **SAFETY FEATURES (All Platforms)**",
+            "• SOS button with location sharing",
+            "• Emergency contact integration", 
+            "• Live trip sharing with family",
+            "• 24/7 support chat/call",
+            "",
+            "💡 **PLATFORM-SPECIFIC TIPS**",
+            "📱 Mobile: Enable notifications for updates",
+            "💻 Web: Bookmark for quick access",
+            "🔄 Sync: Same account works across all platforms"
           ].join("\n")
         : [
-            "• Home: Use top menu for ‘Features’, ‘How it works’, ‘Booking’, ‘Tracking’, ‘App’, ‘Driver’, ‘Admin’.",
-            "• Booking: Choose route/date → passenger details → pay → confirmation.",
-            "• Tracking: Use PNR/booking ID for live status.",
-            "• Payments: Card/UPI/net banking as available; receipt via SMS/email.",
-            "• Reviews/Safety: Give ratings, use SOS/report issue.",
-            "• App: In ‘App’, find Android/iOS download, login, and quick usage.",
-            "• Driver: In ‘Driver’, see onboarding, required documents, shift management, SOS reporting.",
-            "• Admin: Staff/managers sign in via ‘Admin login’."
+            "🚌 **BusSeva - Available Across All Platforms**",
+            "",
+            "📱 **ANDROID APP**",
+            "• Download 'BusSeva' from Google Play Store",
+            "• Features: Push notifications, Offline tickets, GPS tracking, Quick booking",
+            "• Navigation: Bottom tabs → Home, Search, Bookings, Profile", 
+            "• Booking Flow: Home → 'Book Bus' → Select route → Choose seat → Pay",
+            "",
+            "🍎 **iOS APP**",
+            "• Install 'BusSeva' from App Store", 
+            "• Features: Face ID/Touch ID, Apple Pay, Siri shortcuts",
+            "• Interface: Tab bar navigation, Swipe gestures",
+            "• Live Tracking: 'My Trips' → Select journey → 'Track Live'",
+            "",
+            "💻 **WEB PLATFORM (busseva.vercel.app)**",
+            "• Direct browser access", 
+            "• Features: Large screen view, Print tickets, Bulk booking",
+            "• Navigation: Top menu → Home, Routes, Book Now, Track, Support",
+            "• Advantages: No download required, Full keyboard support",
+            "",
+            "🎯 **PLATFORM COMPARISON**",
+            "📱 Mobile Apps: Best for quick booking, live notifications, GPS",
+            "💻 Web: Perfect for planning, group bookings, office use",
+            "",
+            "🚗 **DRIVER PLATFORM**", 
+            "📱 Driver Mobile App:",
+            "• Trip management, Route optimization, Earnings tracking",
+            "• Real-time passenger communication, GPS navigation",
+            "💻 Driver Web Dashboard:",
+            "• Analytics, Document management, Schedule planning",
+            "",
+            "🛡️ **SAFETY FEATURES (All Platforms)**",
+            "• SOS button with location sharing",
+            "• Emergency contacts integration",
+            "• Live trip sharing with family", 
+            "• 24/7 support chat/call",
+            "",
+            "💡 **PLATFORM-SPECIFIC TIPS**",
+            "📱 Mobile: Enable push notifications",
+            "💻 Web: Bookmark for quick access", 
+            "🔄 Sync: Same account across all platforms"
           ].join("\n");
     } else {
       const result = await chat.sendMessage(`Instruction:\n${prompt}\n\nContext:\n${contexts}`);
@@ -182,7 +267,7 @@ app.get("/api/guide", async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// Assistant (RAG Q&A)
+// Enhanced Assistant (RAG Q&A) with BusSeva focus
 async function askHandler(req: express.Request, res: express.Response, next: express.NextFunction) {
   try {
     const { query, lang, topK = 8 } = (req.body ?? {}) as { query: string; lang?: string; topK?: number; };
@@ -200,16 +285,29 @@ async function askHandler(req: express.Request, res: express.Response, next: exp
       return res.json({ text: resp.text, sources: [], lang: guideLang, sessionId });
     }
 
-    // Minimal greeting
+    // Enhanced greeting with multi-platform options
     const isPureGreeting = /^(hi+|hello+|hey+|namaste|नमस्ते|हेलो)$/.test(normalized);
     if (isPureGreeting) {
       const isHindi = /namaste|नमस्ते|हेलो/.test(normalized);
       const generalResponse = isHindi
-        ? "नमस्कार! जल्दी शुरू करें: ‘Features’, ‘How it works’, ‘Booking’, ‘Tracking’, ‘App’, ‘Driver’, ‘Reviews’, ‘Safety’."
-        : "Hello! Quick picks: ‘Features’, ‘How it works’, ‘Booking’, ‘Tracking’, ‘App’, ‘Driver’, ‘Reviews’, ‘Safety’.";
+        ? "नमस्कार! BusSeva में आपका स्वागत है! 🚌\n\n📱 **सभी Platforms पर Available:**\n✅ Android App (Play Store)\n✅ iOS App (App Store)\n✅ Web Platform (Browser)\n\n🎯 **Quick Actions:**\n• 'Platform कैसे choose करें?'\n• 'Features क्या हैं?'\n• 'Booking कैसे करें?'\n• 'Tracking कैसे करें?'"
+        : "Hello! Welcome to BusSeva! 🚌\n\n📱 **Available on All Platforms:**\n✅ Android App (Play Store)\n✅ iOS App (App Store) \n✅ Web Platform (Browser)\n\n🎯 **Quick Questions:**\n• 'How to choose platform?'\n• 'What are the features?'\n• 'How to book tickets?'\n• 'How to track buses?'";
       pushTurn(sessionId, { role: "user", text: query });
       pushTurn(sessionId, { role: "model", text: generalResponse });
       return res.json({ text: generalResponse, sources: [], lang: isHindi ? "hi" : "en", sessionId });
+    }
+
+    // Multi-platform and feature-specific responses
+    const isPlatformQuery = /\b(app|एप|ऐप|web|website|platform|प्लेटफॉर्म|android|ios|iphone|browser|download|डाउनलोड|install|इंस्टॉल|mobile|मोबाइल|features|फीचर्स)\b/.test(normalized);
+    if (isPlatformQuery && contexts.trim().length === 0) {
+      const isHindi = lang === "hi" || /hindi|हिंदी/.test(normalized);
+      const platformResponse = isHindi
+        ? "🎯 **BusSeva - Platform Selection Guide:**\n\n📱 **MOBILE APPS (Recommended)**\n🟢 **Android App:**\n• Play Store → 'BusSeva' search → Install\n• Best for: Quick booking, Push notifications, GPS tracking\n• Features: Offline tickets, Fingerprint login, Voice search\n\n🔵 **iOS App:**\n• App Store → 'BusSeva' search → Get\n• Best for: Apple Pay, Face ID, Siri integration\n• Features: Widget support, Apple Wallet tickets\n\n💻 **WEB PLATFORM**\n• Browser में busseva.vercel.app पर जाएं\n• Best for: Desktop booking, Group reservations, Printing\n• Features: Large screen view, Multiple bookings, Easy sharing\n\n🎯 **CHOOSE YOUR PLATFORM:**\n📱 Mobile = Daily travel, Quick access\n💻 Web = Planning, Office booking, Groups\n\n✨ **Pro Tip:** Same account works on all platforms!"
+        : "🎯 **BusSeva - Platform Selection Guide:**\n\n📱 **MOBILE APPS (Recommended)**\n🟢 **Android App:**\n• Play Store → Search 'BusSeva' → Install\n• Best for: Quick booking, Push notifications, GPS tracking\n• Features: Offline tickets, Fingerprint login, Voice commands\n\n🔵 **iOS App:**\n• App Store → Search 'BusSeva' → Get\n• Best for: Apple Pay, Face ID, Siri shortcuts\n• Features: Widget support, Apple Wallet integration\n\n💻 **WEB PLATFORM**\n• Visit busseva.vercel.app in browser\n• Best for: Desktop booking, Group reservations, Printing\n• Features: Large screen interface, Bulk booking, Easy sharing\n\n🎯 **CHOOSE YOUR PLATFORM:**\n📱 Mobile = Daily travel, On-the-go booking\n💻 Web = Planning ahead, Office use, Groups\n\n✨ **Pro Tip:** Your account syncs across all platforms!";
+      
+      pushTurn(sessionId, { role: "user", text: query });
+      pushTurn(sessionId, { role: "model", text: platformResponse });
+      return res.json({ text: platformResponse, sources: [], lang: isHindi ? "hi" : "en", sessionId });
     }
 
     // A) Embed query
@@ -231,20 +329,21 @@ async function askHandler(req: express.Request, res: express.Response, next: exp
 
     const sources = (search.matches ?? []).slice(0, 5).map((m: any) => m.metadata?.url);
 
-    // C) Grounded answer
+    // C) Grounded answer with BusSeva context
     let text = "";
     if (contexts.trim().length === 0) {
-      text = (lang === "hi")
-        ? "माफ़ करें, इस सवाल के लिए साइट कॉन्टेक्स्ट नहीं मिला; कृपया साइट से जुड़े और खास शब्दों के साथ पूछें (जैसे App, Driver, Booking, Tracking)।"
-        : "Sorry, no site context found; try a more specific site-related question (e.g., App, Driver, Booking, Tracking).";
+      const isHindi = lang === "hi" || /hindi|हिंदी/.test(normalized);
+      text = isHindi
+        ? " BusSeva से जुड़े सवाल जैसे:\n• App कैसे डाउनलोड करें?\n• Bus booking कैसे करें?\n• Live tracking कैसे करें?\n• Payment के तरीके क्या हैं?\n• Driver registration कैसे करें?"
+        : "BusSeva-related questions like:\n• How to download the app?\n• How to book bus tickets?\n• How to use live tracking?\n• What payment methods are available?\n• How to register as driver?";
     } else {
       try {
         const chat = await ai.chats.create({
           model: GEN_MODEL,
           history: toChatHistory(getHistory(sessionId)),
-          systemInstruction: "Answer strictly from the provided context; if unknown, say so; respond in the user's language; be concise and step‑wise for Tier‑2 users.",
+          systemInstruction: "You are BusSeva multi-platform assistant. Always provide platform-specific guidance (Android app, iOS app, Web). Mention UI elements, navigation paths, and platform advantages. For booking/tracking/payments, give step-by-step instructions for each platform. Prioritize user's preferred platform but mention alternatives. Be concise, practical, and helpful for Indian travelers.",
         });
-        const result = await chat.sendMessage(`Question:\n${query}\n\nContext:\n${contexts}`);
+        const result = await chat.sendMessage(`Question:\n${query}\n\nBusSeva Context:\n${contexts}`);
         text = result.response.text();
       } catch (e) {
         console.error("[GEMINI] generate failed", e);
@@ -269,7 +368,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 
 // Boot: auto-crawl + periodic refresh
 app.listen(process.env.PORT || 3000, async () => {
-  console.log("server up on " + (process.env.PORT || 3000));
+  console.log("🚌 BusSeva server up on " + (process.env.PORT || 3000));
   try {
     if (SITE_URL) {
       console.log("[BOOT] Crawling", SITE_URL);

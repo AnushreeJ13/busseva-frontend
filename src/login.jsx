@@ -455,7 +455,7 @@ function SignForm() {
             <button
               className="login-btn"
               onClick={() =>
-                (window.location.href = "https://busseva.vercel.app/admin")
+                (window.location.href = "http://localhost:5173/admin")
               }
               style={{
                 background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
