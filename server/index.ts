@@ -6,8 +6,8 @@ import express from "express";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { RecursiveUrlLoader } from "@langchain/community/document_loaders/web/recursive_url";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter"; // <-- REVERTED: Using standard "langchain" path due to E404
-import { GoogleGenerativeAI } from "@google/generative-ai";        // generation
-import { GoogleGenAI } from "@google/genai";                        // embeddings
+import { GoogleGenerativeAI } from "@google/generative-ai";        // generation & embeddings (unified client)
+// import { GoogleGenAI } from "@google/genai";                        // embeddings (REMOVED)
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
@@ -20,8 +20,8 @@ console.log("[ENV]", {
 });
 
 // Clients
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!); // generation
-const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY! }); // embeddings
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!); // generation & embeddings
+// const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY! }); // REMOVED: using genAI instead
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 
 // Config
@@ -42,13 +42,23 @@ async function embedTexts(
 ) {
   const out: number[][] = [];
   for (const t of texts) {
-    const resp = await ai.models.embedContent({
+        // Using genAI client's embedContent for consistent response structure
+    const resp = await genAI.embedContent({ 
       model: EMBED_MODEL,
-      contents: t,                 // string input supported by @google/genai
-      config: { taskType }         // task type improves retrieval alignment
+      content: t,                 // string input supported by @google/generative-ai
+      taskType: taskType         // task type improves retrieval alignment
     });
-    // NOTE: @google/genai returns "embedding" singular, not "embeddings" plural
-    out.push(resp.embeddings[0].values); 
+
+    // Extraction logic simplified for the genAI SDK response structure (always 'embedding.values')
+    const values = resp.embedding?.values;
+    
+    if (!values || !Array.isArray(values)) {
+        // Log the full response object to help diagnose the exact structure mismatch
+        console.error("Embedding API Response structure failed. Full response:", JSON.stringify(resp, null, 2));
+        throw new Error("Failed to extract embedding values from API response.");
+    }
+
+    out.push(values);
   }
   return out;
 }
@@ -112,6 +122,29 @@ async function askHandler(req: express.Request, res: express.Response, next: exp
     const { query, lang, topK = 8 } = (req.body ?? {}) as { query: string; lang?: string; topK?: number; };
     if (!query) return res.status(400).json({ error: "query required" });
 
+    // --- NEW LOGIC: Pre-RAG Check for Greetings/Generic Queries ---
+    const normalizedQuery = query.toLowerCase().trim();
+    // Detect common greetings/site-guide questions in English and Hindi
+    const isSimpleQuery = /^(hi|hello|hey|namaste|नमस्ते|हेलो|batao|explain|guide|kya hai|what is|side mein kya kya hai|बताना साइड में क्या क्या है)/i.test(normalizedQuery);
+
+    if (isSimpleQuery) {
+        let generalResponse = "";
+        try {
+            const system = `You are a friendly, helpful guide for the Bus Seva website. Respond warmly to greetings and briefly explain your role as the site assistant. Be encouraging and answer in the user's language.`;
+            const prompt = `User query: "${query}"`;
+            const result = await chatModel.generateContent(system + "\n\n" + prompt);
+            generalResponse = result.response.text().trim();
+            console.log("[GEMINI] General response ok");
+        } catch (e) {
+            console.error("[GEMINI] General generation failed", e);
+            generalResponse = "Hello! I'm here to help you navigate and answer questions about the Bus Seva site. Please ask me about features or how it works!";
+        }
+        // Return a general, multilingual response immediately
+        return res.json({ text: generalResponse, sources: [], lang: "auto" });
+    }
+    // --- END NEW LOGIC ---
+
+
     // A) Embed query
     let qVec: number[];
     try {
@@ -140,18 +173,24 @@ async function askHandler(req: express.Request, res: express.Response, next: exp
 
     // C) Generate grounded answer
     let text = "";
-    try {
-      const system = `Answer strictly from the provided context; if unknown, say so and suggest likely sections; respond in the user's language.`;
-      const prompt = `Question:\n${query}\n\nContext:\n${contexts}`;
-      const result = await chatModel.generateContent(system + "\n\n" + prompt);
-      text = result.response.text().trim();
-      console.log("[GEMINI] ok");
-    } catch (e) {
-      console.error("[GEMINI] generate failed", e);
-      text = "Context retrieved, but generation failed; please try again shortly.";
-    }
+    const sources = (search.matches ?? []).slice(0, 5).map((m: any) => m.metadata?.url);
 
-    const sources = (search.matches ?? []).slice(0, 5).map((m: any) => m.metadata?.url);
+    if (contexts.trim().length === 0) {
+        // FALLBACK LOGIC: If search yielded no context for the specific query
+        text = "I couldn't find any relevant information in the documents for that query. Try asking a more specific question related to the site's content.";
+    } else {
+        try {
+          const system = `Answer strictly from the provided context; if unknown, say so and suggest likely sections; respond in the user's language.`;
+          const prompt = `Question:\n${query}\n\nContext:\n${contexts}`;
+          const result = await chatModel.generateContent(system + "\n\n" + prompt);
+          text = result.response.text().trim();
+          console.log("[GEMINI] ok");
+        } catch (e) {
+          console.error("[GEMINI] generate failed", e);
+          text = "Context retrieved, but generation failed; please try again shortly.";
+        }
+    }
+
     res.json({ text, sources, lang });
   } catch (err) { next(err); }
 }

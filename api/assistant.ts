@@ -94,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 let text = "";
 try {
   // generation block (replace old @google/generative-ai call)
-const system = `Answer strictly from provided context; if unknown, say so; respond in the user's language.`; // [web:553]
+const system = `Answer from provided context; if unknown, say the most relevant answer; respond in the user's language.`; // [web:553]
 const trimmed = contexts.slice(0, 60000); // keep payload modest to reduce model errors [web:304]
 const prompt = system + "\n\n" + `Question:\n${query}\n\nContext:\n${trimmed}`; // [web:553]
 
