@@ -10,15 +10,24 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 const chatModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 const index = pc.Index(process.env.PINECONE_INDEX!);
-
-async function embed(text: string, taskType: 'RETRIEVAL_QUERY' | 'RETRIEVAL_DOCUMENT') {
+async function embed(
+  text: string,
+  taskType: 'RETRIEVAL_QUERY' | 'RETRIEVAL_DOCUMENT'
+): Promise<number[]> {
   const r = await ai.models.embedContent({
     model: EMBED_MODEL,
     contents: text,
-    config: { taskType }
+    config: { taskType },
   });
-  return r.embeddings[0].values;
+
+  // Type-safe access with fallback to empty array
+  const vec = r.embeddings?.[0]?.values;
+  if (!vec || !Array.isArray(vec)) {
+    throw new Error('Embedding failed or returned undefined');
+  }
+  return vec;
 }
+
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
