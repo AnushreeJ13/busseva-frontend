@@ -57,5 +57,9 @@
   "main": "eslint.config.js",
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "overrides": {
+  "@browserbasehq/stagehand": "0.0.0"
+}
+
 }
