@@ -17,7 +17,7 @@ async function embed(text: string, taskType: 'RETRIEVAL_QUERY' | 'RETRIEVAL_DOCU
     contents: text,
     config: { taskType }
   });
-  return r.embedding.values;
+  return r.embeddings[0].values;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
