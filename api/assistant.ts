@@ -90,16 +90,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const contexts = raw.slice(0, 60_000); // ~60KB cap [web:304]
 
     // C) Generation with retries
-    let text = '';
-    try {
-      const system = `Answer strictly from provided context; if unknown, say so; respond in the user's language.`;
-      const prompt = `Question:\n${query}\n\nContext:\n${contexts}`;
-      text = await genWithRetry(system, prompt); // retry/backoff for 429/5xx [web:304][web:521]
-      console.log('[GEMINI] ok');
-    } catch (e: any) {
-      console.error('[GEMINI] generate failed', e?.message);
-      text = 'Context retrieved, but generation failed; please try again shortly.';
-    }
+   // Replace your generation try/catch block
+let text = "";
+try {
+  const system = `Answer strictly from provided context; if unknown, say so; respond in the user's language.`;
+  const trimmed = contexts.slice(0, 60000); // keep prompt modest to reduce errors
+  const prompt = system + "\n\n" + `Question:\n${query}\n\nContext:\n${trimmed}`;
+
+  // Use @google/genai for generation
+  const out = await ai.models.generateContent({
+    model: "gemini-1.5-flash", // or "gemini-1.5-flash-001" from models.list
+    contents: [{ role: "user", parts: [{ text: prompt }] }]
+  });
+  text = out.text || out.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (!text) throw new Error("empty generation");
+  console.log("[GEMINI] ok via @google/genai");
+} catch (e: any) {
+  console.error("[GEMINI] generate failed", e?.message);
+  text = "Context retrieved, but generation failed; please try again shortly.";
+}
+
 
     const sources = (search.matches ?? []).slice(0, 5).map((m: any) => m.metadata?.url);
     return res.json({ text, sources, lang });
