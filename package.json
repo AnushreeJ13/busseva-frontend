@@ -59,7 +59,8 @@
   "author": "",
   "license": "ISC",
   "overrides": {
-  "@browserbasehq/stagehand": "0.0.0"
+  "@browserbasehq/stagehand": "npm:no-op3@latest"
 }
+
 
 }
