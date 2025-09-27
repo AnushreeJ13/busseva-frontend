@@ -48,7 +48,7 @@ async function embedTexts(
       config: { taskType }         // task type improves retrieval alignment
     });
     // NOTE: @google/genai returns "embedding" singular, not "embeddings" plural
-    out.push(resp.embedding.values); 
+    out.push(resp.embeddings[0].values); 
   }
   return out;
 }
